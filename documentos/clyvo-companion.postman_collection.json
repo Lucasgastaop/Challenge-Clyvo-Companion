@@ -66,6 +66,14 @@
       "item": [
         { "name": "Listar prescricoes", "request": { "method": "GET", "url": "{{baseUrl}}/prescricoes?idPet=1&page=0&size=10" } },
         {
+          "name": "Listar prescricoes ativas",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/prescricoes/ativas?idPet=1&page=0&size=10&sort=dtInicio,desc",
+            "description": "Prescricoes em vigor (dtFim nulo ou >= hoje)"
+          }
+        },
+        {
           "name": "Criar prescricao",
           "request": {
             "method": "POST",

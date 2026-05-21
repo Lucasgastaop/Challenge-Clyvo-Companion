@@ -33,6 +33,13 @@ public class PrescricaoController {
         return prescricaoService.listar(idPet, medicamento, pageable);
     }
 
+    @GetMapping("/ativas")
+    public Page<PrescricaoResponseDTO> listarAtivas(
+            @RequestParam Long idPet,
+            @PageableDefault(size = 10, sort = "dtInicio", direction = Sort.Direction.DESC) Pageable pageable) {
+        return prescricaoService.listarAtivas(idPet, pageable);
+    }
+
     @GetMapping("/{id}")
     public PrescricaoResponseDTO buscarPorId(@PathVariable Long id) {
         return prescricaoService.buscarPorId(id);

@@ -24,6 +24,13 @@ public interface PrescricaoRepository extends JpaRepository<Prescricao, Long> {
 
     @Query("""
             SELECT p FROM Prescricao p
+            WHERE p.pet.idPet = :idPet
+              AND (p.dtFim IS NULL OR p.dtFim >= :hoje)
+            """)
+    Page<Prescricao> findAtivasPorPet(@Param("idPet") Long idPet, @Param("hoje") LocalDate hoje, Pageable pageable);
+
+    @Query("""
+            SELECT p FROM Prescricao p
             WHERE (:idPet IS NULL OR p.pet.idPet = :idPet)
               AND (:medicamento IS NULL OR LOWER(p.nomeMedicamento) LIKE LOWER(CONCAT('%', :medicamento, '%')))
             """)
