@@ -1,5 +1,6 @@
 package br.com.fiap.clyvo_companion.service;
 
+import br.com.fiap.clyvo_companion.dto.LogSaudeAlertaDTO;
 import br.com.fiap.clyvo_companion.dto.LogSaudeRequestDTO;
 import br.com.fiap.clyvo_companion.dto.LogSaudeResponseDTO;
 import br.com.fiap.clyvo_companion.exception.ResourceNotFoundException;
@@ -19,10 +20,15 @@ public class LogSaudeService {
 
     private final LogSaudeRepository logSaudeRepository;
     private final PetRepository petRepository;
+    private final LogSaudeAlertaAnalyzer alertaAnalyzer;
 
-    public LogSaudeService(LogSaudeRepository logSaudeRepository, PetRepository petRepository) {
+    public LogSaudeService(
+            LogSaudeRepository logSaudeRepository,
+            PetRepository petRepository,
+            LogSaudeAlertaAnalyzer alertaAnalyzer) {
         this.logSaudeRepository = logSaudeRepository;
         this.petRepository = petRepository;
+        this.alertaAnalyzer = alertaAnalyzer;
     }
 
     @Transactional(readOnly = true)
@@ -37,8 +43,23 @@ public class LogSaudeService {
                 .map(LogSaudeResponseDTO::from);
     }
 
+    /**
+     * Retorna logs com métricas fora dos limites de referência (temperatura, frequência, peso).
+     */
+    @Transactional(readOnly = true)
+    @Cacheable(value = "logsSaudeAlertas", key = "#idPet + '-' + #pageable.pageNumber")
+    public Page<LogSaudeAlertaDTO> listarAlertas(Long idPet, Pageable pageable) {
+        if (idPet != null && !petRepository.existsById(idPet)) {
+            throw new ResourceNotFoundException("Pet não encontrado: " + idPet);
+        }
+
+        return logSaudeRepository.buscarAlertas(idPet, pageable)
+                .map(log -> alertaAnalyzer.analisar(log)
+                        .orElseThrow(() -> new IllegalStateException("Log sem alerta: " + log.getIdLog())));
+    }
+
     @Transactional
-    @CacheEvict(value = "logsSaude", allEntries = true)
+    @CacheEvict(value = {"logsSaude", "logsSaudeAlertas", "petsResumo"}, allEntries = true)
     public LogSaudeResponseDTO criar(LogSaudeRequestDTO dto) {
         Pet pet = petRepository.findById(dto.getIdPet())
                 .orElseThrow(() -> new ResourceNotFoundException("Pet não encontrado: " + dto.getIdPet()));
@@ -55,7 +76,7 @@ public class LogSaudeService {
     }
 
     @Transactional
-    @CacheEvict(value = "logsSaude", allEntries = true)
+    @CacheEvict(value = {"logsSaude", "logsSaudeAlertas", "petsResumo"}, allEntries = true)
     public LogSaudeResponseDTO atualizar(Long id, LogSaudeRequestDTO dto) {
         LogSaude log = buscarEntidade(id);
         Pet pet = petRepository.findById(dto.getIdPet())
@@ -71,7 +92,7 @@ public class LogSaudeService {
     }
 
     @Transactional
-    @CacheEvict(value = "logsSaude", allEntries = true)
+    @CacheEvict(value = {"logsSaude", "logsSaudeAlertas", "petsResumo"}, allEntries = true)
     public void excluir(Long id) {
         if (!logSaudeRepository.existsById(id)) {
             throw new ResourceNotFoundException("Log de saúde não encontrado: " + id);

@@ -1,5 +1,6 @@
 package br.com.fiap.clyvo_companion.controller;
 
+import br.com.fiap.clyvo_companion.dto.LogSaudeAlertaDTO;
 import br.com.fiap.clyvo_companion.dto.LogSaudeRequestDTO;
 import br.com.fiap.clyvo_companion.dto.LogSaudeResponseDTO;
 import br.com.fiap.clyvo_companion.service.LogSaudeService;
@@ -31,6 +32,13 @@ public class LogSaudeController {
             @RequestParam(required = false) String metrica,
             @PageableDefault(size = 10, sort = "dtRegistro", direction = Sort.Direction.DESC) Pageable pageable) {
         return logSaudeService.listar(idPet, metrica, pageable);
+    }
+
+    @GetMapping("/alertas")
+    public Page<LogSaudeAlertaDTO> listarAlertas(
+            @RequestParam(required = false) Long idPet,
+            @PageableDefault(size = 10, sort = "dtRegistro", direction = Sort.Direction.DESC) Pageable pageable) {
+        return logSaudeService.listarAlertas(idPet, pageable);
     }
 
     @GetMapping("/{id}")

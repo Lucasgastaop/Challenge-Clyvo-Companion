@@ -92,6 +92,14 @@
       "item": [
         { "name": "Listar logs saude", "request": { "method": "GET", "url": "{{baseUrl}}/logs-saude?idPet=1&page=0&size=10" } },
         {
+          "name": "Listar alertas de saude",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/logs-saude/alertas?idPet=1&page=0&size=10",
+            "description": "Metricas fora do normal: temperatura, frequencia cardiaca, peso"
+          }
+        },
+        {
           "name": "Criar log saude",
           "request": {
             "method": "POST",
