@@ -16,7 +16,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 
 @RestController
-@RequestMapping("/api/v1/logs-saude")
+@RequestMapping("/logs-saude")
 public class LogSaudeController {
 
     private final LogSaudeService logSaudeService;

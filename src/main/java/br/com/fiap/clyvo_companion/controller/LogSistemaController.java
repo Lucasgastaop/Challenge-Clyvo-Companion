@@ -16,7 +16,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 
 @RestController
-@RequestMapping("/api/v1/logs-sistema")
+@RequestMapping("/logs-sistema")
 public class LogSistemaController {
 
     private final LogSistemaService logSistemaService;

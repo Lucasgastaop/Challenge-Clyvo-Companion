@@ -1,0 +1,2 @@
+# Copie para application-local.properties e preencha sua senha
+spring.datasource.password=sua_senha_aqui

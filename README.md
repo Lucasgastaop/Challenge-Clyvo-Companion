@@ -44,22 +44,31 @@ API REST em **Java 17** + **Spring Boot** para o challenge FIAP (Java Advanced) 
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
-- API: http://localhost:8080/api/v1/pets
+- API: http://localhost:8080pets
 - Swagger: http://localhost:8080/swagger-ui.html
 - H2 Console: http://localhost:8080/h2-console
 
 ### Oracle (banco FIAP)
 
-1. Crie as tabelas e sequences conforme seu ERD (já existentes no banco FIAP).
-2. Configure variáveis de ambiente:
+Conexão configurada para:
 
-```bash
-set SPRING_PROFILES_ACTIVE=oracle
-set DB_URL=jdbc:oracle:thin:@HOST:1521/SERVICE
-set DB_USER=seu_usuario
-set DB_PASSWORD=sua_senha
-./mvnw spring-boot:run
+- **Host:** `oracle.fiap.com.br`
+- **Porta:** `1521`
+- **SID:** `ORCL`
+- **Usuário:** `rm563960`
+
+1. Crie as tabelas e sequences conforme seu ERD (já existentes no banco FIAP).
+2. Configure a senha de uma das formas:
+   - Copie `application-local.properties.example` para `application-local.properties` e coloque sua senha (arquivo ignorado pelo Git).
+   - Ou defina a variável de ambiente `DB_PASSWORD`.
+
+```powershell
+.\mvnw.cmd spring-boot:run
 ```
+
+O perfil padrão já é `oracle`. Para H2 local: `-Dspring-boot.run.profiles=dev`
+
+> **Importante:** não commite senha no GitHub público. O arquivo `application-local.properties` está no `.gitignore`.
 
 ## Endpoints REST
 
@@ -67,13 +76,13 @@ Todos os recursos seguem o padrão: `GET` (lista e por id), `POST`, `PUT`, `DELE
 
 | Recurso | Base URL |
 |---------|----------|
-| Usuários | `/api/v1/usuarios` |
-| Pets | `/api/v1/pets` |
-| Clínicas | `/api/v1/clinicas` |
-| Prescrições | `/api/v1/prescricoes` |
-| Logs de saúde | `/api/v1/logs-saude` |
-| Agendamentos | `/api/v1/agendamentos` |
-| Logs de sistema | `/api/v1/logs-sistema` |
+| Usuários | `usuarios` |
+| Pets | `pets` |
+| Clínicas | `clinicas` |
+| Prescrições | `prescricoes` |
+| Logs de saúde | `logs-saude` |
+| Agendamentos | `agendamentos` |
+| Logs de sistema | `logs-sistema` |
 
 ### Filtros de busca (query params)
 

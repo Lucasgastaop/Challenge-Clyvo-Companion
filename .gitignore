@@ -1,5 +1,8 @@
 HELP.md
 target/
+
+# Credenciais locais (senha do Oracle)
+**/application-local.properties
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
