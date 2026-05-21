@@ -1,6 +1,7 @@
 package br.com.fiap.clyvo_companion.controller;
 
 import br.com.fiap.clyvo_companion.dto.PetRequestDTO;
+import br.com.fiap.clyvo_companion.dto.PetResumoSaudeDTO;
 import br.com.fiap.clyvo_companion.dto.PetResponseDTO;
 import br.com.fiap.clyvo_companion.service.PetService;
 import jakarta.validation.Valid;
@@ -32,6 +33,11 @@ public class PetController {
             @RequestParam(required = false) Long idUsuario,
             @PageableDefault(size = 10, sort = "nomePet", direction = Sort.Direction.ASC) Pageable pageable) {
         return petService.listar(nome, especie, idUsuario, pageable);
+    }
+
+    @GetMapping("/{id}/resumo-saude")
+    public PetResumoSaudeDTO buscarResumoSaude(@PathVariable Long id) {
+        return petService.buscarResumoSaude(id);
     }
 
     @GetMapping("/{id}")

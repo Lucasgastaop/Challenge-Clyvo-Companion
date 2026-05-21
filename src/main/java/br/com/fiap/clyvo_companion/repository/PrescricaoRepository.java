@@ -8,8 +8,19 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @Repository
 public interface PrescricaoRepository extends JpaRepository<Prescricao, Long> {
+
+    @Query("""
+            SELECT p FROM Prescricao p
+            WHERE p.pet.idPet = :idPet
+              AND (p.dtFim IS NULL OR p.dtFim >= :hoje)
+            ORDER BY p.dtInicio DESC
+            """)
+    List<Prescricao> findAtivasPorPet(@Param("idPet") Long idPet, @Param("hoje") LocalDate hoje);
 
     @Query("""
             SELECT p FROM Prescricao p

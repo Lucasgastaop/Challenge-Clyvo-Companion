@@ -8,8 +8,20 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Repository
 public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> {
+
+    @Query("""
+            SELECT a FROM Agendamento a
+            WHERE a.pet.idPet = :idPet
+              AND a.dtAgenda >= :agora
+              AND a.status IN ('AGENDADO', 'CONFIRMADO')
+            ORDER BY a.dtAgenda ASC
+            """)
+    List<Agendamento> findProximosPorPet(@Param("idPet") Long idPet, @Param("agora") LocalDateTime agora);
 
     @Query("""
             SELECT a FROM Agendamento a

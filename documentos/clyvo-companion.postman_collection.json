@@ -33,6 +33,14 @@
         { "name": "Listar pets", "request": { "method": "GET", "url": "{{baseUrl}}/pets?page=0&size=10" } },
         { "name": "Buscar pet por ID", "request": { "method": "GET", "url": "{{baseUrl}}/pets/1" } },
         {
+          "name": "Resumo saude do pet",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/pets/1/resumo-saude",
+            "description": "Prescricoes ativas, ultimos 5 logs e proximo agendamento"
+          }
+        },
+        {
           "name": "Criar pet",
           "request": {
             "method": "POST",
