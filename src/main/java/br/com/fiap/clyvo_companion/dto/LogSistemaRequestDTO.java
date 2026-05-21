@@ -14,18 +14,22 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PetRequestDTO {
-
-    @NotNull
-    private Long idUsuario;
+public class LogSistemaRequestDTO {
 
     @NotBlank
     @Size(max = 100)
-    private String nomePet;
+    private String nomeProc;
+
+    @Size(max = 100)
+    private String nomeUsuario;
+
+    @NotNull
+    private LocalDate dtErro;
+
+    @NotNull
+    private Integer cdErro;
 
     @NotBlank
-    @Size(max = 50)
-    private String especie;
-
-    private LocalDate dtNascimento;
+    @Size(max = 400)
+    private String msgErro;
 }

@@ -44,7 +44,7 @@ public class PetController {
         PetResponseDTO criado = petService.criar(dto);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(criado.idPet())
+                .buildAndExpand(criado.getIdPet())
                 .toUri();
         return ResponseEntity.created(location).body(criado);
     }

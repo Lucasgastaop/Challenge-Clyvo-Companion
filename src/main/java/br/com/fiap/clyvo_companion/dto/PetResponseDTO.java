@@ -1,26 +1,34 @@
 package br.com.fiap.clyvo_companion.dto;
 
 import br.com.fiap.clyvo_companion.model.Pet;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
-public record PetResponseDTO(
-        Long idPet,
-        Long idUsuario,
-        String nomePet,
-        String especie,
-        LocalDate dtNascimento,
-        LocalDate dtCadastro
-) {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class PetResponseDTO {
+
+    private Long idPet;
+    private Long idUsuario;
+    private String nomePet;
+    private String especie;
+    private LocalDate dtNascimento;
+    private LocalDate dtCadastro;
 
     public static PetResponseDTO from(Pet pet) {
-        return new PetResponseDTO(
-                pet.getIdPet(),
-                pet.getUsuario().getIdUsuario(),
-                pet.getNomePet(),
-                pet.getEspecie(),
-                pet.getDtNascimento(),
-                pet.getDtCadastro()
-        );
+        PetResponseDTO dto = new PetResponseDTO();
+        dto.setIdPet(pet.getIdPet());
+        dto.setIdUsuario(pet.getUsuario().getIdUsuario());
+        dto.setNomePet(pet.getNomePet());
+        dto.setEspecie(pet.getEspecie());
+        dto.setDtNascimento(pet.getDtNascimento());
+        dto.setDtCadastro(pet.getDtCadastro());
+        return dto;
     }
 }

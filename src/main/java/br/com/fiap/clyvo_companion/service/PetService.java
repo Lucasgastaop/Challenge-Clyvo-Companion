@@ -42,14 +42,14 @@ public class PetService {
     @Transactional
     @CacheEvict(value = "pets", allEntries = true)
     public PetResponseDTO criar(PetRequestDTO dto) {
-        Usuario usuario = usuarioRepository.findById(dto.idUsuario())
-                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado: " + dto.idUsuario()));
+        Usuario usuario = usuarioRepository.findById(dto.getIdUsuario())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado: " + dto.getIdUsuario()));
 
         Pet pet = Pet.builder()
                 .usuario(usuario)
-                .nomePet(dto.nomePet())
-                .especie(dto.especie())
-                .dtNascimento(dto.dtNascimento())
+                .nomePet(dto.getNomePet())
+                .especie(dto.getEspecie())
+                .dtNascimento(dto.getDtNascimento())
                 .dtCadastro(LocalDate.now())
                 .build();
 
@@ -60,13 +60,13 @@ public class PetService {
     @CacheEvict(value = "pets", allEntries = true)
     public PetResponseDTO atualizar(Long id, PetRequestDTO dto) {
         Pet pet = buscarEntidade(id);
-        Usuario usuario = usuarioRepository.findById(dto.idUsuario())
-                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado: " + dto.idUsuario()));
+        Usuario usuario = usuarioRepository.findById(dto.getIdUsuario())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado: " + dto.getIdUsuario()));
 
         pet.setUsuario(usuario);
-        pet.setNomePet(dto.nomePet());
-        pet.setEspecie(dto.especie());
-        pet.setDtNascimento(dto.dtNascimento());
+        pet.setNomePet(dto.getNomePet());
+        pet.setEspecie(dto.getEspecie());
+        pet.setDtNascimento(dto.getDtNascimento());
 
         return PetResponseDTO.from(petRepository.save(pet));
     }

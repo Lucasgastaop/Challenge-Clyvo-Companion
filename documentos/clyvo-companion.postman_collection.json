@@ -1,0 +1,129 @@
+{
+  "info": {
+    "name": "Clyvo Companion API",
+    "description": "Coleção de testes da API REST - FIAP Java Advanced",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" }
+  ],
+  "item": [
+    {
+      "name": "Usuarios",
+      "item": [
+        { "name": "Listar usuarios", "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/usuarios?page=0&size=10&sort=nomeUsuario,asc" } },
+        { "name": "Buscar usuario por ID", "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/usuarios/1" } },
+        {
+          "name": "Criar usuario",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nomeUsuario\": \"Joao Santos\",\n  \"email\": \"joao@email.com\",\n  \"senha\": \"senha123\",\n  \"tpPerfil\": \"TUTOR\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/usuarios"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pets",
+      "item": [
+        { "name": "Listar pets", "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/pets?page=0&size=10" } },
+        { "name": "Buscar pet por ID", "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/pets/1" } },
+        {
+          "name": "Criar pet",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idUsuario\": 1,\n  \"nomePet\": \"Luna\",\n  \"especie\": \"Gato\",\n  \"dtNascimento\": \"2022-03-15\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/pets"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Clinicas",
+      "item": [
+        { "name": "Listar clinicas", "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/clinicas?page=0&size=10" } },
+        { "name": "Buscar clinica por ID", "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/clinicas/1" } }
+      ]
+    },
+    {
+      "name": "Prescricoes",
+      "item": [
+        { "name": "Listar prescricoes", "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/prescricoes?idPet=1&page=0&size=10" } },
+        {
+          "name": "Criar prescricao",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idPet\": 1,\n  \"nomeMedicamento\": \"Antibiotico\",\n  \"dsDosagem\": \"10mg\",\n  \"frequenciaHoras\": 12,\n  \"dtInicio\": \"2026-05-20\",\n  \"dtFim\": \"2026-05-27\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/prescricoes"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Logs Saude",
+      "item": [
+        { "name": "Listar logs saude", "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/logs-saude?idPet=1&page=0&size=10" } },
+        {
+          "name": "Criar log saude",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idPet\": 1,\n  \"dtRegistro\": \"2026-05-20T10:30:00\",\n  \"vlMetrica\": 38.5,\n  \"metrica\": \"temperatura\",\n  \"obs\": \"Febre leve\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/logs-saude"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Agendamentos",
+      "item": [
+        { "name": "Listar agendamentos", "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/agendamentos?page=0&size=10" } },
+        {
+          "name": "Criar agendamento",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idPet\": 1,\n  \"idClinica\": 1,\n  \"dtAgenda\": \"2026-06-01T14:00:00\",\n  \"tipoServico\": \"Consulta\",\n  \"status\": \"AGENDADO\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/agendamentos"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Logs Sistema",
+      "item": [
+        { "name": "Listar logs sistema", "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/logs-sistema?page=0&size=10" } },
+        {
+          "name": "Criar log sistema",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nomeProc\": \"PetService.criar\",\n  \"nomeUsuario\": \"maria@email.com\",\n  \"dtErro\": \"2026-05-20\",\n  \"cdErro\": 500,\n  \"msgErro\": \"Erro de teste\"\n}"
+            },
+            "url": "{{baseUrl}}/api/v1/logs-sistema"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -8,24 +8,28 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PetRequestDTO {
+public class LogSaudeRequestDTO {
 
     @NotNull
-    private Long idUsuario;
+    private Long idPet;
+
+    @NotNull
+    private LocalDateTime dtRegistro;
+
+    @NotNull
+    private BigDecimal vlMetrica;
 
     @NotBlank
-    @Size(max = 100)
-    private String nomePet;
+    @Size(max = 30)
+    private String metrica;
 
-    @NotBlank
-    @Size(max = 50)
-    private String especie;
-
-    private LocalDate dtNascimento;
+    @Size(max = 255)
+    private String obs;
 }

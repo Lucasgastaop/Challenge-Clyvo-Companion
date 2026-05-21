@@ -8,24 +8,28 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PetRequestDTO {
+public class AgendamentoRequestDTO {
 
     @NotNull
-    private Long idUsuario;
+    private Long idPet;
 
-    @NotBlank
-    @Size(max = 100)
-    private String nomePet;
+    @NotNull
+    private Long idClinica;
+
+    @NotNull
+    private LocalDateTime dtAgenda;
 
     @NotBlank
     @Size(max = 50)
-    private String especie;
+    private String tipoServico;
 
-    private LocalDate dtNascimento;
+    @NotBlank
+    @Size(max = 20)
+    private String status;
 }

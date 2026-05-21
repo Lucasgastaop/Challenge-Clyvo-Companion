@@ -19,6 +19,11 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI(), null);
     }
 
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicate(DuplicateResourceException ex, HttpServletRequest request) {
+        return build(HttpStatus.CONFLICT, ex.getMessage(), request.getRequestURI(), null);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex, HttpServletRequest request) {
         List<ErrorResponse.FieldErrorDetail> fieldErrors = ex.getBindingResult()
@@ -36,7 +41,10 @@ public class GlobalExceptionHandler {
     }
 
     private ErrorResponse.FieldErrorDetail toFieldError(FieldError error) {
-        return new ErrorResponse.FieldErrorDetail(error.getField(), error.getDefaultMessage());
+        ErrorResponse.FieldErrorDetail detail = new ErrorResponse.FieldErrorDetail();
+        detail.setField(error.getField());
+        detail.setMessage(error.getDefaultMessage());
+        return detail;
     }
 
     private ResponseEntity<ErrorResponse> build(
@@ -45,14 +53,13 @@ public class GlobalExceptionHandler {
             String path,
             List<ErrorResponse.FieldErrorDetail> fieldErrors) {
 
-        ErrorResponse body = new ErrorResponse(
-                LocalDateTime.now(),
-                status.value(),
-                status.getReasonPhrase(),
-                message,
-                path,
-                fieldErrors
-        );
+        ErrorResponse body = new ErrorResponse();
+        body.setTimestamp(LocalDateTime.now());
+        body.setStatus(status.value());
+        body.setError(status.getReasonPhrase());
+        body.setMessage(message);
+        body.setPath(path);
+        body.setFieldErrors(fieldErrors);
         return ResponseEntity.status(status).body(body);
     }
 }

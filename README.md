@@ -26,15 +26,15 @@ API REST em **Java 17** + **Spring Boot** para o challenge FIAP (Java Advanced) 
 ## Requisitos atendidos (1ª Sprint)
 
 - [x] Spring Boot + JPA com relacionamentos
-- [x] Bean Validation nos DTOs
+- [x] Bean Validation nos DTOs (classes Java, sem `record`)
 - [x] Paginação e ordenação (`Pageable`)
-- [x] Busca parametrizada (JPQL em `PetRepository`)
+- [x] Busca parametrizada (JPQL nos repositories)
 - [x] Cache (`@Cacheable` / `@CacheEvict`)
 - [x] Tratamento de exceções (`GlobalExceptionHandler`)
-- [x] DTOs
+- [x] DTOs em classes (`getter`/`setter` + método `from`)
 - [x] Swagger UI (`/swagger-ui.html`)
-- [ ] Demais recursos REST (Usuario, Clinica, etc.) — próximo passo
-- [ ] Coleção Postman/Insomnia em `documentos/`
+- [x] API REST completa para todas as entidades
+- [x] Coleção Postman em `documentos/clyvo-companion.postman_collection.json`
 
 ## Como executar
 
@@ -50,9 +50,8 @@ API REST em **Java 17** + **Spring Boot** para o challenge FIAP (Java Advanced) 
 
 ### Oracle (banco FIAP)
 
-1. Crie as tabelas conforme seu ERD.
-2. Execute `sql/oracle-sequences.sql` se necessário.
-3. Configure variáveis de ambiente:
+1. Crie as tabelas e sequences conforme seu ERD (já existentes no banco FIAP).
+2. Configure variáveis de ambiente:
 
 ```bash
 set SPRING_PROFILES_ACTIVE=oracle
@@ -62,26 +61,36 @@ set DB_PASSWORD=sua_senha
 ./mvnw spring-boot:run
 ```
 
-## Endpoints — Pets
+## Endpoints REST
 
-| Método | URL | Descrição |
-|--------|-----|-----------|
-| GET | `/api/v1/pets?page=0&size=10&sort=nomePet,asc` | Lista com paginação |
-| GET | `/api/v1/pets?nome=thor&especie=cachorro&idUsuario=1` | Busca parametrizada |
-| GET | `/api/v1/pets/{id}` | Busca por ID |
-| POST | `/api/v1/pets` | Cria pet |
-| PUT | `/api/v1/pets/{id}` | Atualiza pet |
-| DELETE | `/api/v1/pets/{id}` | Remove pet |
+Todos os recursos seguem o padrão: `GET` (lista e por id), `POST`, `PUT`, `DELETE` (exceto `logs-sistema`, somente leitura/criação/exclusão).
 
-### Exemplo POST
+| Recurso | Base URL |
+|---------|----------|
+| Usuários | `/api/v1/usuarios` |
+| Pets | `/api/v1/pets` |
+| Clínicas | `/api/v1/clinicas` |
+| Prescrições | `/api/v1/prescricoes` |
+| Logs de saúde | `/api/v1/logs-saude` |
+| Agendamentos | `/api/v1/agendamentos` |
+| Logs de sistema | `/api/v1/logs-sistema` |
 
-```json
-{
-  "idUsuario": 1,
-  "nomePet": "Luna",
-  "especie": "Gato",
-  "dtNascimento": "2022-03-15"
-}
+### Filtros de busca (query params)
+
+| Recurso | Parâmetros |
+|---------|------------|
+| Usuários | `nome`, `email`, `tpPerfil` |
+| Pets | `nome`, `especie`, `idUsuario` |
+| Clínicas | `nome`, `cnpj` |
+| Prescrições | `idPet`, `medicamento` |
+| Logs saúde | `idPet`, `metrica` |
+| Agendamentos | `idPet`, `idClinica`, `status` |
+| Logs sistema | `nomeProc`, `cdErro` |
+
+### Paginação e ordenação
+
+```
+?page=0&size=10&sort=nomePet,asc
 ```
 
 ## Documentação e entrega

@@ -1,31 +1,30 @@
 package br.com.fiap.clyvo_companion.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PetRequestDTO {
-
-    @NotNull
-    private Long idUsuario;
+public class ClinicaRequestDTO {
 
     @NotBlank
     @Size(max = 100)
-    private String nomePet;
+    private String nomeClinica;
 
     @NotBlank
-    @Size(max = 50)
-    private String especie;
+    @Size(min = 14, max = 14)
+    private String cnpj;
 
-    private LocalDate dtNascimento;
+    @NotBlank
+    @Size(max = 200)
+    private String endereco;
+
+    @Size(max = 15)
+    private String telefone;
 }

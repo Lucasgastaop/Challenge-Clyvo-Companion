@@ -1,17 +1,33 @@
 package br.com.fiap.clyvo_companion.exception;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record ErrorResponse(
-        LocalDateTime timestamp,
-        int status,
-        String error,
-        String message,
-        String path,
-        List<FieldErrorDetail> fieldErrors
-) {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class ErrorResponse {
 
-    public record FieldErrorDetail(String field, String message) {
+    private LocalDateTime timestamp;
+    private int status;
+    private String error;
+    private String message;
+    private String path;
+    private List<FieldErrorDetail> fieldErrors;
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class FieldErrorDetail {
+
+        private String field;
+        private String message;
     }
 }
