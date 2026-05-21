@@ -2,10 +2,12 @@ package br.com.fiap.clyvo_companion.service;
 
 import br.com.fiap.clyvo_companion.dto.AgendamentoRequestDTO;
 import br.com.fiap.clyvo_companion.dto.AgendamentoResponseDTO;
+import br.com.fiap.clyvo_companion.dto.AgendamentoStatusDTO;
 import br.com.fiap.clyvo_companion.exception.ResourceNotFoundException;
 import br.com.fiap.clyvo_companion.model.Agendamento;
 import br.com.fiap.clyvo_companion.model.Clinica;
 import br.com.fiap.clyvo_companion.model.Pet;
+import br.com.fiap.clyvo_companion.model.enums.StatusAgendamento;
 import br.com.fiap.clyvo_companion.repository.AgendamentoRepository;
 import br.com.fiap.clyvo_companion.repository.ClinicaRepository;
 import br.com.fiap.clyvo_companion.repository.PetRepository;
@@ -22,14 +24,17 @@ public class AgendamentoService {
     private final AgendamentoRepository agendamentoRepository;
     private final PetRepository petRepository;
     private final ClinicaRepository clinicaRepository;
+    private final AgendamentoStatusValidator statusValidator;
 
     public AgendamentoService(
             AgendamentoRepository agendamentoRepository,
             PetRepository petRepository,
-            ClinicaRepository clinicaRepository) {
+            ClinicaRepository clinicaRepository,
+            AgendamentoStatusValidator statusValidator) {
         this.agendamentoRepository = agendamentoRepository;
         this.petRepository = petRepository;
         this.clinicaRepository = clinicaRepository;
+        this.statusValidator = statusValidator;
     }
 
     @Transactional(readOnly = true)
@@ -45,7 +50,7 @@ public class AgendamentoService {
     }
 
     @Transactional
-    @CacheEvict(value = "agendamentos", allEntries = true)
+    @CacheEvict(value = {"agendamentos", "petsResumo"}, allEntries = true)
     public AgendamentoResponseDTO criar(AgendamentoRequestDTO dto) {
         Pet pet = petRepository.findById(dto.getIdPet())
                 .orElseThrow(() -> new ResourceNotFoundException("Pet não encontrado: " + dto.getIdPet()));
@@ -63,8 +68,26 @@ public class AgendamentoService {
         return AgendamentoResponseDTO.from(agendamentoRepository.save(agendamento));
     }
 
+    /**
+     * Atualiza somente o status com validação de transições permitidas.
+     * AGENDADO → CONFIRMADO | CANCELADO
+     * CONFIRMADO → CONCLUIDO | CANCELADO
+     */
     @Transactional
-    @CacheEvict(value = "agendamentos", allEntries = true)
+    @CacheEvict(value = {"agendamentos", "petsResumo"}, allEntries = true)
+    public AgendamentoResponseDTO atualizarStatus(Long id, AgendamentoStatusDTO dto) {
+        Agendamento agendamento = buscarEntidade(id);
+        StatusAgendamento atual = StatusAgendamento.fromValor(agendamento.getStatus());
+        StatusAgendamento novo = StatusAgendamento.fromValor(dto.getStatus());
+
+        statusValidator.validarTransicao(atual, novo);
+        agendamento.setStatus(novo.name());
+
+        return AgendamentoResponseDTO.from(agendamentoRepository.save(agendamento));
+    }
+
+    @Transactional
+    @CacheEvict(value = {"agendamentos", "petsResumo"}, allEntries = true)
     public AgendamentoResponseDTO atualizar(Long id, AgendamentoRequestDTO dto) {
         Agendamento agendamento = buscarEntidade(id);
         Pet pet = petRepository.findById(dto.getIdPet())
@@ -82,7 +105,7 @@ public class AgendamentoService {
     }
 
     @Transactional
-    @CacheEvict(value = "agendamentos", allEntries = true)
+    @CacheEvict(value = {"agendamentos", "petsResumo"}, allEntries = true)
     public void excluir(Long id) {
         if (!agendamentoRepository.existsById(id)) {
             throw new ResourceNotFoundException("Agendamento não encontrado: " + id);

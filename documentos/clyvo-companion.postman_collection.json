@@ -120,6 +120,19 @@
             },
             "url": "{{baseUrl}}/agendamentos"
           }
+        },
+        {
+          "name": "Confirmar agendamento",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"CONFIRMADO\"\n}"
+            },
+            "url": "{{baseUrl}}/agendamentos/1/status",
+            "description": "Transicoes: AGENDADO->CONFIRMADO|CANCELADO, CONFIRMADO->CONCLUIDO|CANCELADO"
+          }
         }
       ]
     },

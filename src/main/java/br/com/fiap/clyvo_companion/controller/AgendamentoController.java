@@ -2,6 +2,7 @@ package br.com.fiap.clyvo_companion.controller;
 
 import br.com.fiap.clyvo_companion.dto.AgendamentoRequestDTO;
 import br.com.fiap.clyvo_companion.dto.AgendamentoResponseDTO;
+import br.com.fiap.clyvo_companion.dto.AgendamentoStatusDTO;
 import br.com.fiap.clyvo_companion.service.AgendamentoService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -47,6 +48,13 @@ public class AgendamentoController {
                 .buildAndExpand(criado.getIdAgendamento())
                 .toUri();
         return ResponseEntity.created(location).body(criado);
+    }
+
+    @PatchMapping("/{id}/status")
+    public AgendamentoResponseDTO atualizarStatus(
+            @PathVariable Long id,
+            @Valid @RequestBody AgendamentoStatusDTO dto) {
+        return agendamentoService.atualizarStatus(id, dto);
     }
 
     @PutMapping("/{id}")
