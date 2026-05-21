@@ -159,6 +159,15 @@
             },
             "url": "{{baseUrl}}/logs-sistema"
           }
+        },
+        {
+          "name": "Testar log automatico (404)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Usuario", "value": "maria@email.com" }],
+            "url": "{{baseUrl}}/pets/99999",
+            "description": "Gera erro 404 e grava automaticamente em TB_CC_LOG_SISTEMA. Depois consulte GET /logs-sistema"
+          }
         }
       ]
     }
