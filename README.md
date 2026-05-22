@@ -1,125 +1,8 @@
 # Clyvo Companion
 
-API REST em **Java 17** + **Spring Boot** para o challenge FIAP (Java Advanced) — gestão de saúde e cuidados de pets.
+API REST desenvolvida em **Java 17** e **Spring Boot** para o challenge **Java Advanced (FIAP)**. O sistema apoia tutores no acompanhamento da saúde e dos cuidados de pets: cadastro de animais, métricas de saúde, prescrições, agendamentos em clínicas e auditoria de erros da aplicação.
 
-## Arquitetura
-
-| Camada | Pacote | Responsabilidade |
-|--------|--------|------------------|
-| Model | `model` | Entidades JPA mapeadas ao ERD (`TB_CC_*`) |
-| Repository | `repository` | Spring Data JPA (JPQL + Query Methods) |
-| Service | `service` | Regras de negócio, cache, transações |
-| Controller | `controller` | Endpoints REST |
-| DTO | `dto` | Contratos de entrada/saída da API |
-| Exception | `exception` | Tratamento global de erros |
-
-### Entidades (Astah + ERD)
-
-- `Usuario` → `TB_CC_USUARIO` (1:N `Pet`)
-- `Pet` → `TB_CC_PET`
-- `Prescricao` → `TB_CC_PRESCRICAO`
-- `LogSaude` → `TB_CC_LOG_SAUDE`
-- `Clinica` → `TB_CC_CLINICA`
-- `Agendamento` → `TB_CC_AGENDAMENTO`
-- `LogSistema` → `TB_CC_LOG_SISTEMA` (auditoria isolada)
-
-## Requisitos atendidos (1ª Sprint)
-
-- [x] Spring Boot + JPA com relacionamentos
-- [x] Bean Validation nos DTOs (classes Java, sem `record`)
-- [x] Paginação e ordenação (`Pageable`)
-- [x] Busca parametrizada (JPQL nos repositories)
-- [x] Cache (`@Cacheable` / `@CacheEvict`)
-- [x] Tratamento de exceções (`GlobalExceptionHandler`)
-- [x] DTOs em classes (`getter`/`setter` + método `from`)
-- [x] Swagger UI (`/swagger-ui.html`)
-- [x] API REST completa para todas as entidades
-- [x] Coleção Postman em `postman/clyvo-companion.postman_collection.json`
-- [x] Cronograma em `documentos/CRONOGRAMA.md`
-
-## Como executar
-
-### Desenvolvimento local (H2)
-
-```bash
-./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
-```
-
-- API: http://localhost:8080
-- Swagger: http://localhost:8080/swagger-ui.html
-- H2 Console: http://localhost:8080/h2-console
-
-### Oracle (banco FIAP)
-
-Conexão configurada para:
-
-- **Host:** `oracle.fiap.com.br`
-- **Porta:** `1521`
-- **SID:** `ORCL`
-- **Usuário:** `rm563960`
-
-1. Crie as tabelas e sequences conforme seu ERD (já existentes no banco FIAP).
-2. Configure a senha de uma das formas:
-   - Copie `application-local.properties.example` para `application-local.properties` e coloque sua senha (arquivo ignorado pelo Git).
-   - Ou defina a variável de ambiente `DB_PASSWORD`.
-
-```powershell
-.\mvnw.cmd spring-boot:run
-```
-
-O perfil padrão já é `oracle`. Para H2 local: `-Dspring-boot.run.profiles=dev`
-
-> **Importante:** não commite senha no GitHub público. O arquivo `application-local.properties` está no `.gitignore`.
-
-## Endpoints REST
-
-Todos os recursos seguem o padrão: `GET` (lista e por id), `POST`, `PUT`, `DELETE` (exceto `logs-sistema`, somente leitura/criação/exclusão).
-
-| Recurso | Base URL |
-|---------|----------|
-| Usuários | `usuarios` |
-| Pets | `pets` |
-| Clínicas | `clinicas` |
-| Prescrições | `prescricoes` |
-| Logs de saúde | `logs-saude` |
-| Agendamentos | `agendamentos` |
-| Logs de sistema | `logs-sistema` |
-
-### Filtros de busca (query params)
-
-| Recurso | Parâmetros |
-|---------|------------|
-| Usuários | `nome`, `email`, `tpPerfil` |
-| Pets | `nome`, `especie`, `idUsuario` |
-| Clínicas | `nome`, `cnpj` |
-| Prescrições | `idPet`, `medicamento` |
-| Logs saúde | `idPet`, `metrica` |
-| Agendamentos | `idPet`, `idClinica`, `status` |
-| Logs sistema | `nomeProc`, `cdErro` |
-
-### Paginação e ordenação
-
-```
-?page=0&size=10&sort=nomePet,asc
-```
-
-## Documentação e entrega
-
-| Material | Onde está |
-|----------|-----------|
-| **Cronograma da equipe** | [`documentos/CRONOGRAMA.md`](documentos/CRONOGRAMA.md) |
-| Arquitetura, diagramas, testes e prints | Documento **Word** da equipe |
-| Coleção Postman | [`postman/clyvo-companion.postman_collection.json`](postman/clyvo-companion.postman_collection.json) |
-
-### Endpoints de negócio (além do CRUD)
-
-| Método | Endpoint |
-|--------|----------|
-| GET | `/pets/{id}/resumo-saude` |
-| GET | `/prescricoes/ativas?idPet=` |
-| PATCH | `/agendamentos/{id}/status` |
-| GET | `/logs-saude/alertas?idPet=` |
-| — | Log automático em `TB_CC_LOG_SISTEMA` (exceções da API) |
+**Repositório:** https://github.com/Lucasgastaop/Challenge-Clyvo-Companion
 
 ## Equipe
 
@@ -129,6 +12,137 @@ Todos os recursos seguem o padrão: `GET` (lista e por id), `POST`, `PUT`, `DELE
 | rm562673 | Guilherme Soares De Almeida | API REST |
 | rm563143 | Geovanne Coneglian Passos | Negócio e qualidade |
 
-Cronograma detalhado: [`documentos/CRONOGRAMA.md`](documentos/CRONOGRAMA.md)
+Cronograma de atividades: [`documentos/CRONOGRAMA.md`](documentos/CRONOGRAMA.md)
 
-**GitHub:** `https://github.com/SEU_USUARIO/clyvo-companion` _(link público)_
+## Arquitetura
+
+| Camada | Pacote | Responsabilidade |
+|--------|--------|------------------|
+| Model | `model` | Entidades JPA mapeadas ao ERD (`TB_CC_*`) |
+| Repository | `repository` | Spring Data JPA (JPQL e Query Methods) |
+| Service | `service` | Regras de negócio, cache e transações |
+| Controller | `controller` | Endpoints REST |
+| DTO | `dto` | Contratos de entrada e saída da API |
+| Exception | `exception` | Tratamento centralizado de erros |
+
+### Entidades
+
+| Classe | Tabela | Relacionamento principal |
+|--------|--------|---------------------------|
+| Usuario | TB_CC_USUARIO | 1:N Pet |
+| Pet | TB_CC_PET | N:1 Usuario |
+| Prescricao | TB_CC_PRESCRICAO | N:1 Pet |
+| LogSaude | TB_CC_LOG_SAUDE | N:1 Pet |
+| Clinica | TB_CC_CLINICA | 1:N Agendamento |
+| Agendamento | TB_CC_AGENDAMENTO | N:1 Pet, N:1 Clinica |
+| LogSistema | TB_CC_LOG_SISTEMA | Auditoria (isolada) |
+
+## Tecnologias
+
+- Java 17
+- Spring Boot 4
+- Spring Data JPA
+- Bean Validation
+- SpringDoc OpenAPI (Swagger)
+- Oracle Database (FIAP) / H2 (desenvolvimento)
+- Maven
+
+## Como executar
+
+### Pré-requisitos
+
+- JDK 17+
+- Maven Wrapper incluído no projeto (`mvnw`)
+
+### Oracle (ambiente FIAP)
+
+Configuração padrão em `application-oracle.properties`:
+
+| Parâmetro | Valor |
+|-----------|-------|
+| Host | oracle.fiap.com.br |
+| Porta | 1521 |
+| SID | ORCL |
+| Usuário | rm563960 |
+
+A senha deve ser informada em `application-local.properties` (a partir de `application-local.properties.example`) ou pela variável de ambiente `DB_PASSWORD`.
+
+```powershell
+.\mvnw.cmd spring-boot:run
+```
+
+### H2 (desenvolvimento local)
+
+```powershell
+.\mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=dev"
+```
+
+### Acesso à aplicação
+
+| Recurso | URL |
+|---------|-----|
+| API | http://localhost:8080 |
+| Swagger UI | http://localhost:8080/swagger-ui.html |
+| H2 Console (perfil dev) | http://localhost:8080/h2-console |
+
+## API REST
+
+### Recursos (CRUD)
+
+| Recurso | Endpoint base |
+|---------|----------------|
+| Usuários | `/usuarios` |
+| Pets | `/pets` |
+| Clínicas | `/clinicas` |
+| Prescrições | `/prescricoes` |
+| Logs de saúde | `/logs-saude` |
+| Agendamentos | `/agendamentos` |
+| Logs de sistema | `/logs-sistema` |
+
+Operações disponíveis: `GET` (listagem paginada e por ID), `POST`, `PUT` e `DELETE`, conforme o recurso.
+
+### Regras de negócio
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| GET | `/pets/{id}/resumo-saude` | Consolida prescrições ativas, últimos logs e próximo agendamento |
+| GET | `/prescricoes/ativas?idPet={id}` | Lista prescrições em vigor |
+| PATCH | `/agendamentos/{id}/status` | Atualiza status com validação de transição |
+| GET | `/logs-saude/alertas?idPet={id}` | Retorna métricas fora dos limites de referência |
+| — | Tratamento de exceções | Registro automático em `TB_CC_LOG_SISTEMA` |
+
+### Busca, paginação e ordenação
+
+Exemplo:
+
+```
+GET /pets?nome=thor&page=0&size=10&sort=nomePet,asc
+```
+
+| Recurso | Parâmetros de filtro |
+|---------|----------------------|
+| Usuários | `nome`, `email`, `tpPerfil` |
+| Pets | `nome`, `especie`, `idUsuario` |
+| Clínicas | `nome`, `cnpj` |
+| Prescrições | `idPet`, `medicamento` |
+| Logs de saúde | `idPet`, `metrica` |
+| Agendamentos | `idPet`, `idClinica`, `status` |
+| Logs de sistema | `nomeProc`, `cdErro` |
+
+## Documentação complementar
+
+| Material | Localização |
+|----------|-------------|
+| Cronograma da sprint | [`documentos/CRONOGRAMA.md`](documentos/CRONOGRAMA.md) |
+| Diagramas, arquitetura e relatório de testes | Documento Word (entrega da equipe) |
+| Coleção Postman | [`postman/clyvo-companion.postman_collection.json`](postman/clyvo-companion.postman_collection.json) |
+
+## Recursos implementados (1ª Sprint)
+
+- Persistência relacional com JPA e mapeamento alinhado ao modelo de dados
+- API REST com DTOs e Bean Validation
+- Paginação, ordenação e consultas parametrizadas (JPQL)
+- Cache de leitura com Spring Cache
+- Documentação da API via Swagger
+- Tratamento global de exceções com respostas padronizadas
+- Funcionalidades de negócio além do CRUD básico
