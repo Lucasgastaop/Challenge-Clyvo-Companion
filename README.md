@@ -107,7 +107,7 @@ Operações disponíveis: `GET` (listagem paginada e por ID), `POST`, `PUT` e `D
 |--------|----------|-----------|
 | GET | `/pets/{id}/resumo-saude` | Consolida prescrições ativas, últimos logs e próximo agendamento |
 | GET | `/prescricoes/ativas?idPet={id}` | Lista prescrições em vigor |
-| PATCH | `/agendamentos/{id}/status` | Atualiza status com validação de transição |
+| PATCH | `/agendamentos/{id}/status` | Atualiza status (`AGENDADO` → `CONCLUIDO` ou `CANCELADO`) |
 | GET | `/logs-saude/alertas?idPet={id}` | Retorna métricas fora dos limites de referência |
 | — | Tratamento de exceções | Registro automático em `TB_CC_LOG_SISTEMA` |
 
@@ -135,7 +135,7 @@ GET /pets?nome=thor&page=0&size=10&sort=nomePet,asc
 |----------|-------------|
 | Cronograma da sprint | [`documentos/CRONOGRAMA.md`](documentos/CRONOGRAMA.md) |
 | Diagramas, arquitetura e relatório de testes | Documento Word (entrega da equipe) |
-| Coleção Postman | [`postman/clyvo-companion.postman_collection.json`](postman/clyvo-companion.postman_collection.json) |
+| Coleção Postman | [`postman/clyvo-companion.postman_collection.json`](postman/clyvo-companion.postman_collection.json) — **18 requisições** numeradas (01–18); importar e rodar no Collection Runner com a API ativa |
 
 ## Recursos implementados (1ª Sprint)
 

@@ -1,9 +1,11 @@
 package br.com.fiap.clyvo_companion.model.enums;
 
+/**
+ * Valores alinhados à constraint CK_STATUS_AGENDAMENTO do Oracle (TB_CC_AGENDAMENTO).
+ */
 public enum StatusAgendamento {
 
     AGENDADO,
-    CONFIRMADO,
     CANCELADO,
     CONCLUIDO;
 
@@ -15,7 +17,7 @@ public enum StatusAgendamento {
             return StatusAgendamento.valueOf(valor.trim().toUpperCase());
         } catch (IllegalArgumentException ex) {
             throw new IllegalArgumentException(
-                    "Status inválido: " + valor + ". Valores aceitos: AGENDADO, CONFIRMADO, CANCELADO, CONCLUIDO");
+                    "Status inválido: " + valor + ". Valores aceitos: AGENDADO, CANCELADO, CONCLUIDO");
         }
     }
 }

@@ -18,8 +18,7 @@ public class AgendamentoStatusValidator {
         }
 
         boolean transicaoValida = switch (atual) {
-            case AGENDADO -> novo == StatusAgendamento.CONFIRMADO || novo == StatusAgendamento.CANCELADO;
-            case CONFIRMADO -> novo == StatusAgendamento.CONCLUIDO || novo == StatusAgendamento.CANCELADO;
+            case AGENDADO -> novo == StatusAgendamento.CONCLUIDO || novo == StatusAgendamento.CANCELADO;
             default -> false;
         };
 

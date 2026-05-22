@@ -18,7 +18,7 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
             SELECT a FROM Agendamento a
             WHERE a.pet.idPet = :idPet
               AND a.dtAgenda >= :agora
-              AND a.status IN ('AGENDADO', 'CONFIRMADO')
+              AND a.status = 'AGENDADO'
             ORDER BY a.dtAgenda ASC
             """)
     List<Agendamento> findProximosPorPet(@Param("idPet") Long idPet, @Param("agora") LocalDateTime agora);

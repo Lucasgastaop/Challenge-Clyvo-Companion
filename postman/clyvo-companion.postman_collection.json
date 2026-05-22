@@ -1,173 +1,230 @@
 {
   "info": {
     "name": "Clyvo Companion API",
-    "description": "Coleção de testes da API REST - FIAP Java Advanced",
+    "description": "Coleção FIAP Java Advanced — 18 requisições numeradas. No Collection Runner, rode a coleção inteira (ou a pasta única) com a API no Oracle.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:8080" }
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "idUsuario", "value": "1" },
+    { "key": "idPet", "value": "1" },
+    { "key": "idClinica", "value": "1" },
+    { "key": "idAgendamento", "value": "1" },
+    { "key": "cnpjTeste", "value": "12345678000199" }
   ],
   "item": [
     {
-      "name": "Usuarios",
+      "name": "00 - Fluxo Entrega (executar em ordem)",
+      "description": "Rode esta pasta com Collection Runner. E-mails e CNPJ usam timestamp para evitar conflito no Oracle. IDs são atualizados automaticamente após cada POST.",
       "item": [
-        { "name": "Listar usuarios", "request": { "method": "GET", "url": "{{baseUrl}}/usuarios?page=0&size=10&sort=nomeUsuario,asc" } },
-        { "name": "Buscar usuario por ID", "request": { "method": "GET", "url": "{{baseUrl}}/usuarios/1" } },
         {
-          "name": "Criar usuario",
+          "name": "01 - Listar usuarios",
+          "request": { "method": "GET", "url": "{{baseUrl}}/usuarios?page=0&size=5" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('HTTP 200', () => pm.response.to.have.status(200));"] } }]
+        },
+        {
+          "name": "02 - Criar usuario",
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nomeUsuario\": \"Joao Santos\",\n  \"email\": \"joao@email.com\",\n  \"senha\": \"senha123\",\n  \"tpPerfil\": \"TUTOR\"\n}"
+              "raw": "{\n  \"nomeUsuario\": \"Tutor Teste FIAP\",\n  \"email\": \"tutor.{{$timestamp}}@fiap.com.br\",\n  \"senha\": \"senha123\",\n  \"tpPerfil\": \"TUTOR\"\n}"
             },
             "url": "{{baseUrl}}/usuarios"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Pets",
-      "item": [
-        { "name": "Listar pets", "request": { "method": "GET", "url": "{{baseUrl}}/pets?page=0&size=10" } },
-        { "name": "Buscar pet por ID", "request": { "method": "GET", "url": "{{baseUrl}}/pets/1" } },
-        {
-          "name": "Resumo saude do pet",
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/pets/1/resumo-saude",
-            "description": "Prescricoes ativas, ultimos 5 logs e proximo agendamento"
-          }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                "if (pm.response.code === 201) {",
+                "  pm.collectionVariables.set('idUsuario', pm.response.json().idUsuario);",
+                "}"
+              ]
+            }
+          }]
         },
         {
-          "name": "Criar pet",
+          "name": "03 - Buscar usuario por ID",
+          "request": { "method": "GET", "url": "{{baseUrl}}/usuarios/{{idUsuario}}" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('HTTP 200', () => pm.response.to.have.status(200));"] } }]
+        },
+        {
+          "name": "04 - Criar clinica",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "var ts = Date.now().toString();",
+                  "var cnpj = ('00000000000000' + ts).slice(-14);",
+                  "pm.collectionVariables.set('cnpjTeste', cnpj);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('idClinica', pm.response.json().idClinica);",
+                  "}"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"idUsuario\": 1,\n  \"nomePet\": \"Luna\",\n  \"especie\": \"Gato\",\n  \"dtNascimento\": \"2022-03-15\"\n}"
+              "raw": "{\n  \"nomeClinica\": \"Clinica Teste FIAP\",\n  \"cnpj\": \"{{cnpjTeste}}\",\n  \"endereco\": \"Av. Paulista, 1000\",\n  \"telefone\": \"11999990000\"\n}"
+            },
+            "url": "{{baseUrl}}/clinicas"
+          }
+        },
+        {
+          "name": "05 - Criar pet",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idUsuario\": {{idUsuario}},\n  \"nomePet\": \"Thor Teste\",\n  \"especie\": \"Cachorro\",\n  \"dtNascimento\": \"2020-05-10\"\n}"
             },
             "url": "{{baseUrl}}/pets"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Clinicas",
-      "item": [
-        { "name": "Listar clinicas", "request": { "method": "GET", "url": "{{baseUrl}}/clinicas?page=0&size=10" } },
-        { "name": "Buscar clinica por ID", "request": { "method": "GET", "url": "{{baseUrl}}/clinicas/1" } }
-      ]
-    },
-    {
-      "name": "Prescricoes",
-      "item": [
-        { "name": "Listar prescricoes", "request": { "method": "GET", "url": "{{baseUrl}}/prescricoes?idPet=1&page=0&size=10" } },
-        {
-          "name": "Listar prescricoes ativas",
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/prescricoes/ativas?idPet=1&page=0&size=10&sort=dtInicio,desc",
-            "description": "Prescricoes em vigor (dtFim nulo ou >= hoje)"
-          }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                "if (pm.response.code === 201) {",
+                "  pm.collectionVariables.set('idPet', pm.response.json().idPet);",
+                "}"
+              ]
+            }
+          }]
         },
         {
-          "name": "Criar prescricao",
+          "name": "06 - Listar pets",
+          "request": { "method": "GET", "url": "{{baseUrl}}/pets?page=0&size=5" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('HTTP 200', () => pm.response.to.have.status(200));"] } }]
+        },
+        {
+          "name": "07 - Buscar pet por ID",
+          "request": { "method": "GET", "url": "{{baseUrl}}/pets/{{idPet}}" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('HTTP 200', () => pm.response.to.have.status(200));"] } }]
+        },
+        {
+          "name": "08 - Resumo saude do pet",
+          "request": { "method": "GET", "url": "{{baseUrl}}/pets/{{idPet}}/resumo-saude" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('HTTP 200', () => pm.response.to.have.status(200));"] } }]
+        },
+        {
+          "name": "09 - Criar prescricao",
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"idPet\": 1,\n  \"nomeMedicamento\": \"Antibiotico\",\n  \"dsDosagem\": \"10mg\",\n  \"frequenciaHoras\": 12,\n  \"dtInicio\": \"2026-05-20\",\n  \"dtFim\": \"2026-05-27\"\n}"
+              "raw": "{\n  \"idPet\": {{idPet}},\n  \"nomeMedicamento\": \"Antibiotico\",\n  \"dsDosagem\": \"10mg\",\n  \"frequenciaHoras\": 12,\n  \"dtInicio\": \"2026-05-01\",\n  \"dtFim\": \"2026-12-31\"\n}"
             },
             "url": "{{baseUrl}}/prescricoes"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Logs Saude",
-      "item": [
-        { "name": "Listar logs saude", "request": { "method": "GET", "url": "{{baseUrl}}/logs-saude?idPet=1&page=0&size=10" } },
-        {
-          "name": "Listar alertas de saude",
-          "request": {
-            "method": "GET",
-            "url": "{{baseUrl}}/logs-saude/alertas?idPet=1&page=0&size=10",
-            "description": "Metricas fora do normal: temperatura, frequencia cardiaca, peso"
-          }
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('HTTP 201', () => pm.response.to.have.status(201));"] } }]
         },
         {
-          "name": "Criar log saude",
+          "name": "10 - Listar prescricoes ativas",
+          "request": { "method": "GET", "url": "{{baseUrl}}/prescricoes/ativas?idPet={{idPet}}&page=0&size=10" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('HTTP 200', () => pm.response.to.have.status(200));"] } }]
+        },
+        {
+          "name": "11 - Criar log saude (temperatura alta)",
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"idPet\": 1,\n  \"dtRegistro\": \"2026-05-20T10:30:00\",\n  \"vlMetrica\": 38.5,\n  \"metrica\": \"temperatura\",\n  \"obs\": \"Febre leve\"\n}"
+              "raw": "{\n  \"idPet\": {{idPet}},\n  \"dtRegistro\": \"2026-05-21T14:00:00\",\n  \"vlMetrica\": 39.8,\n  \"metrica\": \"temperatura\",\n  \"obs\": \"Teste alerta - febre\"\n}"
             },
             "url": "{{baseUrl}}/logs-saude"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Agendamentos",
-      "item": [
-        { "name": "Listar agendamentos", "request": { "method": "GET", "url": "{{baseUrl}}/agendamentos?page=0&size=10" } },
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('HTTP 201', () => pm.response.to.have.status(201));"] } }]
+        },
         {
-          "name": "Criar agendamento",
+          "name": "12 - Listar alertas de saude",
+          "request": { "method": "GET", "url": "{{baseUrl}}/logs-saude/alertas?idPet={{idPet}}&page=0&size=10" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('HTTP 200', () => pm.response.to.have.status(200));"] } }]
+        },
+        {
+          "name": "13 - Criar agendamento",
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"idPet\": 1,\n  \"idClinica\": 1,\n  \"dtAgenda\": \"2026-06-01T14:00:00\",\n  \"tipoServico\": \"Consulta\",\n  \"status\": \"AGENDADO\"\n}"
+              "raw": "{\n  \"idPet\": {{idPet}},\n  \"idClinica\": {{idClinica}},\n  \"dtAgenda\": \"2026-08-15T10:00:00\",\n  \"tipoServico\": \"Consulta\",\n  \"status\": \"AGENDADO\"\n}"
             },
             "url": "{{baseUrl}}/agendamentos"
-          }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                "if (pm.response.code === 201) {",
+                "  pm.collectionVariables.set('idAgendamento', pm.response.json().idAgendamento);",
+                "}"
+              ]
+            }
+          }]
         },
         {
-          "name": "Confirmar agendamento",
+          "name": "14 - Concluir agendamento (PATCH)",
           "request": {
             "method": "PATCH",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"status\": \"CONFIRMADO\"\n}"
-            },
-            "url": "{{baseUrl}}/agendamentos/1/status",
-            "description": "Transicoes: AGENDADO->CONFIRMADO|CANCELADO, CONFIRMADO->CONCLUIDO|CANCELADO"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Logs Sistema",
-      "item": [
-        { "name": "Listar logs sistema", "request": { "method": "GET", "url": "{{baseUrl}}/logs-sistema?page=0&size=10" } },
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"CONCLUIDO\"\n}" },
+            "url": "{{baseUrl}}/agendamentos/{{idAgendamento}}/status"
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('HTTP 200', () => pm.response.to.have.status(200));"] } }]
+        },
         {
-          "name": "Criar log sistema",
+          "name": "15 - Transicao invalida (esperado 400)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"CANCELADO\"\n}" },
+            "url": "{{baseUrl}}/agendamentos/{{idAgendamento}}/status"
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('HTTP 400', () => pm.response.to.have.status(400));"] } }]
+        },
+        {
+          "name": "16 - Validacao Bean Validation (esperado 400)",
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nomeProc\": \"PetService.criar\",\n  \"nomeUsuario\": \"maria@email.com\",\n  \"dtErro\": \"2026-05-20\",\n  \"cdErro\": 500,\n  \"msgErro\": \"Erro de teste\"\n}"
-            },
-            "url": "{{baseUrl}}/logs-sistema"
-          }
+            "body": { "mode": "raw", "raw": "{\n  \"idUsuario\": {{idUsuario}},\n  \"nomePet\": \"\",\n  \"especie\": \"Gato\"\n}" },
+            "url": "{{baseUrl}}/pets"
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('HTTP 400', () => pm.response.to.have.status(400));"] } }]
         },
         {
-          "name": "Testar log automatico (404)",
+          "name": "17 - Pet inexistente (esperado 404)",
           "request": {
             "method": "GET",
-            "header": [{ "key": "X-Usuario", "value": "maria@email.com" }],
-            "url": "{{baseUrl}}/pets/99999",
-            "description": "Gera erro 404 e grava automaticamente em TB_CC_LOG_SISTEMA. Depois consulte GET /logs-sistema"
-          }
+            "header": [{ "key": "X-Usuario", "value": "maria@fiap.com.br" }],
+            "url": "{{baseUrl}}/pets/999999"
+          },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('HTTP 404', () => pm.response.to.have.status(404));"] } }]
+        },
+        {
+          "name": "18 - Ver log automatico no sistema",
+          "request": { "method": "GET", "url": "{{baseUrl}}/logs-sistema?cdErro=404&page=0&size=5&sort=dtErro,desc" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('HTTP 200', () => pm.response.to.have.status(200));"] } }]
         }
       ]
     }

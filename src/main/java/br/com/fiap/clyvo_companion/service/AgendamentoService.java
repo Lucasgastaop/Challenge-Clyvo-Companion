@@ -70,8 +70,7 @@ public class AgendamentoService {
 
     /**
      * Atualiza somente o status com validação de transições permitidas.
-     * AGENDADO → CONFIRMADO | CANCELADO
-     * CONFIRMADO → CONCLUIDO | CANCELADO
+     * AGENDADO → CONCLUIDO | CANCELADO (conforme CK_STATUS_AGENDAMENTO no Oracle)
      */
     @Transactional
     @CacheEvict(value = {"agendamentos", "petsResumo"}, allEntries = true)
