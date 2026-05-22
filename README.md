@@ -34,7 +34,8 @@ API REST em **Java 17** + **Spring Boot** para o challenge FIAP (Java Advanced) 
 - [x] DTOs em classes (`getter`/`setter` + método `from`)
 - [x] Swagger UI (`/swagger-ui.html`)
 - [x] API REST completa para todas as entidades
-- [x] Coleção Postman em `documentos/clyvo-companion.postman_collection.json`
+- [x] Coleção Postman em `postman/clyvo-companion.postman_collection.json`
+- [x] Cronograma em `documentos/CRONOGRAMA.md`
 
 ## Como executar
 
@@ -44,7 +45,7 @@ API REST em **Java 17** + **Spring Boot** para o challenge FIAP (Java Advanced) 
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
-- API: http://localhost:8080pets
+- API: http://localhost:8080
 - Swagger: http://localhost:8080/swagger-ui.html
 - H2 Console: http://localhost:8080/h2-console
 
@@ -104,12 +105,30 @@ Todos os recursos seguem o padrão: `GET` (lista e por id), `POST`, `PUT`, `DELE
 
 ## Documentação e entrega
 
-Coloque na pasta `documentos/`:
+| Material | Onde está |
+|----------|-----------|
+| **Cronograma da equipe** | [`documentos/CRONOGRAMA.md`](documentos/CRONOGRAMA.md) |
+| Arquitetura, diagramas, testes e prints | Documento **Word** da equipe |
+| Coleção Postman | [`postman/clyvo-companion.postman_collection.json`](postman/clyvo-companion.postman_collection.json) |
 
-- Export da coleção Postman ou Insomnia
-- Prints ou relatório de testes
-- Cronograma da equipe (se aplicável)
+### Endpoints de negócio (além do CRUD)
+
+| Método | Endpoint |
+|--------|----------|
+| GET | `/pets/{id}/resumo-saude` |
+| GET | `/prescricoes/ativas?idPet=` |
+| PATCH | `/agendamentos/{id}/status` |
+| GET | `/logs-saude/alertas?idPet=` |
+| — | Log automático em `TB_CC_LOG_SISTEMA` (exceções da API) |
 
 ## Equipe
 
-Atualize com os integrantes e o link do repositório público no GitHub.
+| RM | Nome | Papel |
+|----|------|-------|
+| rm563960 | Lucas Silva Gastão Pinheiro | Persistência e modelagem |
+| rm562673 | Guilherme Soares De Almeida | API REST |
+| rm563143 | Geovanne Coneglian Passos | Negócio e qualidade |
+
+Cronograma detalhado: [`documentos/CRONOGRAMA.md`](documentos/CRONOGRAMA.md)
+
+**GitHub:** `https://github.com/SEU_USUARIO/clyvo-companion` _(link público)_
