@@ -4,7 +4,7 @@
 **Disciplina:** Java Advanced — FIAP  
 **Repositório:** https://github.com/Lucasgastaop/Challenge-Clyvo-Companion
 
-A documentação complementar (diagramas de arquitetura, modelo de dados, relatório de testes e evidências) integra o material de entrega em Word da equipe. O código-fonte e este cronograma estão versionados no GitHub.
+A documentação complementar (diagramas de arquitetura, modelo de dados, relatório de testes e evidências) integra o material de entrega em Word da equipe. O código-fonte, este cronograma e a exportação Postman (`clyvo-companion.postman_collection.json`) estão versionados no GitHub.
 
 ## Integrantes
 
