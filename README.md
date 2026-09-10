@@ -92,6 +92,19 @@ O Flyway executa as mesmas migrações. Se o schema já tiver as tabelas da spri
 .\mvnw.cmd spring-boot:run
 ```
 
+### Render
+
+O projeto sobe como **Web Service Docker**. Crie o serviço no dashboard (ou use o `render.yaml`) e defina:
+
+| Variável | Valor |
+|----------|--------|
+| `SPRING_PROFILES_ACTIVE` | `oracle` |
+| `ORACLE_URL` | `jdbc:oracle:thin:@oracle.fiap.com.br:1521:ORCL` |
+| `ORACLE_USERNAME` | seu RM |
+| `ORACLE_PASSWORD` | senha do Oracle FIAP |
+
+Health check: `/login`. Se o Oracle da FIAP estiver inacessível a partir do Render, use `SPRING_PROFILES_ACTIVE=dev` (H2 em memória; os dados zeram a cada restart).
+
 ### Acesso
 
 | Recurso | URL |

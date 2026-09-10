@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: clyvo-companion
+    runtime: docker
+    plan: free
+    healthCheckPath: /login
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: oracle
+      - key: JAVA_OPTS
+        value: -Xms128m -Xmx384m
+      - key: ORACLE_URL
+        value: jdbc:oracle:thin:@oracle.fiap.com.br:1521:ORCL
+      - key: ORACLE_USERNAME
+        sync: false
+      - key: ORACLE_PASSWORD
+        sync: false
