@@ -1,5 +1,6 @@
 package br.com.fiap.clyvo_companion.dto;
 
+import br.com.fiap.clyvo_companion.service.PeriodoPrescricao;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -19,6 +20,8 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class PrescricaoRequestDTO {
 
+    public static final int FREQUENCIA_PADRAO_HORAS = 24;
+
     @NotNull(message = "Selecione o pet")
     private Long idPet;
 
@@ -33,18 +36,15 @@ public class PrescricaoRequestDTO {
     @NotNull(message = "Informe a frequência em horas")
     @Min(value = 1, message = "A frequência mínima é de 1 hora")
     @Max(value = 72, message = "A frequência máxima é de 72 horas")
-    private Integer frequenciaHoras;
+    private Integer frequenciaHoras = FREQUENCIA_PADRAO_HORAS;
 
     @NotNull(message = "Informe a data de início")
     private LocalDate dtInicio;
 
     private LocalDate dtFim;
 
-    @AssertTrue(message = "A data de término deve ser igual ou posterior à data de início")
+    @AssertTrue(message = PeriodoPrescricao.MENSAGEM_INVALIDO)
     public boolean isPeriodoValido() {
-        if (dtFim == null || dtInicio == null) {
-            return true;
-        }
-        return !dtFim.isBefore(dtInicio);
+        return PeriodoPrescricao.isValido(dtInicio, dtFim);
     }
 }

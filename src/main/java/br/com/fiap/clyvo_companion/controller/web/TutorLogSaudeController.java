@@ -1,8 +1,6 @@
 package br.com.fiap.clyvo_companion.controller.web;
 
 import br.com.fiap.clyvo_companion.dto.LogSaudeRequestDTO;
-import br.com.fiap.clyvo_companion.exception.BusinessRuleException;
-import br.com.fiap.clyvo_companion.exception.ResourceNotFoundException;
 import br.com.fiap.clyvo_companion.security.UsuarioDetails;
 import br.com.fiap.clyvo_companion.service.LogSaudeService;
 import br.com.fiap.clyvo_companion.service.MetricaSaudeValidator;
@@ -59,20 +57,13 @@ public class TutorLogSaudeController {
             @AuthenticationPrincipal UsuarioDetails tutor,
             Model model,
             RedirectAttributes redirectAttributes) {
-        if (bindingResult.hasErrors()) {
+        if (WebFormSupport.falhouAoSalvar(bindingResult, () -> logSaudeService.criar(dto))) {
             preencherFormulario(model, tutor);
             return "tutor/log-saude-form";
         }
 
-        try {
-            logSaudeService.criar(dto);
-            redirectAttributes.addFlashAttribute("sucesso", "Log de saúde registrado com sucesso.");
-            return "redirect:/tutor/logs-saude";
-        } catch (BusinessRuleException | ResourceNotFoundException ex) {
-            bindingResult.reject("negocio", ex.getMessage());
-            preencherFormulario(model, tutor);
-            return "tutor/log-saude-form";
-        }
+        redirectAttributes.addFlashAttribute("sucesso", "Log de saúde registrado com sucesso.");
+        return "redirect:/tutor/logs-saude";
     }
 
     private void preencherFormulario(Model model, UsuarioDetails tutor) {

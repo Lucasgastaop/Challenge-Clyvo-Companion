@@ -1,8 +1,15 @@
 {
   "info": {
     "name": "Clyvo Companion API",
-    "description": "Coleção FIAP Java Advanced — 18 requisições numeradas. No Collection Runner, rode a coleção inteira (ou a pasta única) com a API no Oracle.",
+    "description": "Coleção FIAP Java Advanced — 18 requisições numeradas. Rode a pasta \"00 - Fluxo Entrega\" no Collection Runner. HTTP Basic: tutor (maria) por padrão; prescrição usa o veterinário (carlos).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "basic",
+    "basic": [
+      { "key": "username", "value": "maria@email.com" },
+      { "key": "password", "value": "senha123" }
+    ]
   },
   "variable": [
     { "key": "baseUrl", "value": "http://localhost:8080" },
@@ -14,33 +21,8 @@
   ],
   "item": [
     {
-      "name": "Auth",
-      "item": [
-        {
-          "name": "POST /auth/login",
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"maria@email.com\",\n  \"senha\": \"senha123\"\n}"
-            },
-            "url": "{{baseUrl}}/auth/login"
-          }
-        },
-        {
-          "name": "GET /auth/me",
-          "request": { "method": "GET", "url": "{{baseUrl}}/auth/me" }
-        },
-        {
-          "name": "POST /auth/logout",
-          "request": { "method": "POST", "url": "{{baseUrl}}/auth/logout" }
-        }
-      ]
-    },
-    {
       "name": "00 - Fluxo Entrega (executar em ordem)",
-      "description": "Rode esta pasta com Collection Runner. E-mails e CNPJ usam timestamp para evitar conflito no Oracle. IDs são atualizados automaticamente após cada POST.",
+      "description": "Rode esta pasta com Collection Runner. E-mails e CNPJ usam timestamp para evitar conflito no Oracle. IDs são atualizados automaticamente após cada POST. Tutor autentica a coleção; as prescrições autenticam o veterinário.",
       "item": [
         {
           "name": "01 - Listar usuarios",
@@ -150,6 +132,13 @@
         },
         {
           "name": "09 - Criar prescricao",
+          "auth": {
+            "type": "basic",
+            "basic": [
+              { "key": "username", "value": "carlos.vet@clyvo.com" },
+              { "key": "password", "value": "senha123" }
+            ]
+          },
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
@@ -163,6 +152,13 @@
         },
         {
           "name": "10 - Listar prescricoes ativas",
+          "auth": {
+            "type": "basic",
+            "basic": [
+              { "key": "username", "value": "carlos.vet@clyvo.com" },
+              { "key": "password", "value": "senha123" }
+            ]
+          },
           "request": { "method": "GET", "url": "{{baseUrl}}/prescricoes/ativas?idPet={{idPet}}&page=0&size=10" },
           "event": [{ "listen": "test", "script": { "exec": ["pm.test('HTTP 200', () => pm.response.to.have.status(200));"] } }]
         },
@@ -241,7 +237,6 @@
           "name": "17 - Pet inexistente (esperado 404)",
           "request": {
             "method": "GET",
-            "header": [{ "key": "X-Usuario", "value": "maria@fiap.com.br" }],
             "url": "{{baseUrl}}/pets/999999"
           },
           "event": [{ "listen": "test", "script": { "exec": ["pm.test('HTTP 404', () => pm.response.to.have.status(404));"] } }]
@@ -250,6 +245,31 @@
           "name": "18 - Ver log automatico no sistema",
           "request": { "method": "GET", "url": "{{baseUrl}}/logs-sistema?cdErro=404&page=0&size=5&sort=dtErro,desc" },
           "event": [{ "listen": "test", "script": { "exec": ["pm.test('HTTP 200', () => pm.response.to.have.status(200));"] } }]
+        }
+      ]
+    },
+    {
+      "name": "Auth (sessao JSON)",
+      "item": [
+        {
+          "name": "POST /auth/login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"maria@email.com\",\n  \"senha\": \"senha123\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "GET /auth/me",
+          "request": { "method": "GET", "url": "{{baseUrl}}/auth/me" }
+        },
+        {
+          "name": "POST /auth/logout",
+          "request": { "method": "POST", "url": "{{baseUrl}}/auth/logout" }
         }
       ]
     }

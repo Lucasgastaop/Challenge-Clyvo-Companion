@@ -1,8 +1,6 @@
 package br.com.fiap.clyvo_companion.controller.web;
 
 import br.com.fiap.clyvo_companion.dto.PetRequestDTO;
-import br.com.fiap.clyvo_companion.exception.BusinessRuleException;
-import br.com.fiap.clyvo_companion.exception.ResourceNotFoundException;
 import br.com.fiap.clyvo_companion.security.UsuarioDetails;
 import br.com.fiap.clyvo_companion.service.PetService;
 import jakarta.validation.Valid;
@@ -59,19 +57,12 @@ public class TutorPetController {
             Model model,
             RedirectAttributes redirectAttributes) {
         dto.setIdUsuario(tutor.getIdUsuario());
-        if (bindingResult.hasErrors()) {
+        if (WebFormSupport.falhouAoSalvar(bindingResult, () -> petService.criar(dto))) {
             model.addAttribute("especies", ESPECIES);
             return "tutor/pet-form";
         }
 
-        try {
-            petService.criar(dto);
-            redirectAttributes.addFlashAttribute("sucesso", "Pet cadastrado com sucesso.");
-            return "redirect:/tutor/pets";
-        } catch (BusinessRuleException | ResourceNotFoundException ex) {
-            bindingResult.reject("negocio", ex.getMessage());
-            model.addAttribute("especies", ESPECIES);
-            return "tutor/pet-form";
-        }
+        redirectAttributes.addFlashAttribute("sucesso", "Pet cadastrado com sucesso.");
+        return "redirect:/tutor/pets";
     }
 }

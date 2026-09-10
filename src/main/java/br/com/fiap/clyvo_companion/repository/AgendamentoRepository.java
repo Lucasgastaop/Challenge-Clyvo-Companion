@@ -1,6 +1,7 @@
 package br.com.fiap.clyvo_companion.repository;
 
 import br.com.fiap.clyvo_companion.model.Agendamento;
+import br.com.fiap.clyvo_companion.model.enums.StatusAgendamento;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,7 +19,7 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
             SELECT a FROM Agendamento a
             WHERE a.pet.idPet = :idPet
               AND a.dtAgenda >= :agora
-              AND a.status = 'AGENDADO'
+              AND a.status = br.com.fiap.clyvo_companion.model.enums.StatusAgendamento.AGENDADO
             ORDER BY a.dtAgenda ASC
             """)
     List<Agendamento> findProximosPorPet(@Param("idPet") Long idPet, @Param("agora") LocalDateTime agora);
@@ -40,6 +41,6 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
     Page<Agendamento> buscarComFiltros(
             @Param("idPet") Long idPet,
             @Param("idClinica") Long idClinica,
-            @Param("status") String status,
+            @Param("status") StatusAgendamento status,
             Pageable pageable);
 }

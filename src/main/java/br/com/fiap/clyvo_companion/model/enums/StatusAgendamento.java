@@ -10,14 +10,6 @@ public enum StatusAgendamento {
     CONCLUIDO;
 
     public static StatusAgendamento fromValor(String valor) {
-        if (valor == null || valor.isBlank()) {
-            throw new IllegalArgumentException("Status não informado");
-        }
-        try {
-            return StatusAgendamento.valueOf(valor.trim().toUpperCase());
-        } catch (IllegalArgumentException ex) {
-            throw new IllegalArgumentException(
-                    "Status inválido: " + valor + ". Valores aceitos: AGENDADO, CANCELADO, CONCLUIDO");
-        }
+        return ValorEnum.fromValor(StatusAgendamento.class, valor, "Status");
     }
 }

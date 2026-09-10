@@ -17,11 +17,11 @@ public class MetricaSaudeValidator {
     private static final Map<String, Limite> LIMITES = new LinkedHashMap<>();
 
     static {
-        LIMITES.put("peso", new Limite(new BigDecimal("0.10"), new BigDecimal("120.00"), "kg"));
-        LIMITES.put("alimentacao", new Limite(new BigDecimal("1"), new BigDecimal("5000"), "g"));
-        LIMITES.put("exercicio", new Limite(BigDecimal.ZERO, new BigDecimal("480"), "min"));
-        LIMITES.put("temperatura", new Limite(new BigDecimal("30.00"), new BigDecimal("45.00"), "°C"));
-        LIMITES.put("frequencia cardiaca", new Limite(new BigDecimal("30"), new BigDecimal("300"), "bpm"));
+        LIMITES.put("peso", new Limite("Peso", new BigDecimal("0.10"), new BigDecimal("120.00"), "kg"));
+        LIMITES.put("alimentacao", new Limite("Alimentação", new BigDecimal("1"), new BigDecimal("5000"), "g"));
+        LIMITES.put("exercicio", new Limite("Exercício", BigDecimal.ZERO, new BigDecimal("480"), "min"));
+        LIMITES.put("temperatura", new Limite("Temperatura", new BigDecimal("30.00"), new BigDecimal("45.00"), "°C"));
+        LIMITES.put("frequencia cardiaca", new Limite("Frequência cardíaca", new BigDecimal("30"), new BigDecimal("300"), "bpm"));
     }
 
     public void validar(String metrica, BigDecimal valor) {
@@ -48,11 +48,7 @@ public class MetricaSaudeValidator {
 
     public Map<String, String> opcoesFormulario() {
         Map<String, String> opcoes = new LinkedHashMap<>();
-        opcoes.put("peso", "Peso (kg) — 0,10 a 120");
-        opcoes.put("alimentacao", "Alimentação (g) — 1 a 5000");
-        opcoes.put("exercicio", "Exercício (min) — 0 a 480");
-        opcoes.put("temperatura", "Temperatura (°C) — 30 a 45");
-        opcoes.put("frequencia cardiaca", "Frequência cardíaca (bpm) — 30 a 300");
+        LIMITES.forEach((chave, limite) -> opcoes.put(chave, limite.rotuloFormulario()));
         return opcoes;
     }
 
@@ -60,6 +56,13 @@ public class MetricaSaudeValidator {
         return metrica.toLowerCase().trim().replace('_', ' ');
     }
 
-    private record Limite(BigDecimal min, BigDecimal max, String unidade) {
+    private record Limite(String rotulo, BigDecimal min, BigDecimal max, String unidade) {
+        String rotuloFormulario() {
+            return rotulo + " (" + unidade + ") — " + formatar(min) + " a " + formatar(max);
+        }
+
+        private static String formatar(BigDecimal valor) {
+            return valor.stripTrailingZeros().toPlainString().replace('.', ',');
+        }
     }
 }

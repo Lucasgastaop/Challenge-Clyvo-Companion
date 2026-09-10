@@ -13,12 +13,6 @@ import java.util.Optional;
 @Component
 public class LogSaudeAlertaAnalyzer {
 
-    private static final BigDecimal TEMP_MIN = new BigDecimal("37.0");
-    private static final BigDecimal TEMP_MAX = new BigDecimal("39.0");
-    private static final BigDecimal FREQ_MIN = new BigDecimal("60");
-    private static final BigDecimal FREQ_MAX = new BigDecimal("180");
-    private static final BigDecimal PESO_MIN = new BigDecimal("0.5");
-
     public Optional<LogSaudeAlertaDTO> analisar(LogSaude log) {
         String metrica = log.getMetrica().toLowerCase().trim();
         BigDecimal valor = log.getVlMetrica();
@@ -34,28 +28,38 @@ public class LogSaudeAlertaAnalyzer {
     }
 
     private Optional<AlertaInfo> analisarTemperatura(BigDecimal valor) {
-        if (valor.compareTo(TEMP_MIN) < 0) {
-            return Optional.of(new AlertaInfo("Temperatura abaixo do normal (< 37°C)", "ALTO"));
+        if (valor.compareTo(LimitesAlertaSaude.TEMPERATURA_MIN) < 0) {
+            return Optional.of(new AlertaInfo(
+                    "Temperatura abaixo do normal (< " + LimitesAlertaSaude.formatar(LimitesAlertaSaude.TEMPERATURA_MIN) + "°C)",
+                    "ALTO"));
         }
-        if (valor.compareTo(TEMP_MAX) > 0) {
-            return Optional.of(new AlertaInfo("Temperatura acima do normal (> 39°C)", "ALTO"));
+        if (valor.compareTo(LimitesAlertaSaude.TEMPERATURA_MAX) > 0) {
+            return Optional.of(new AlertaInfo(
+                    "Temperatura acima do normal (> " + LimitesAlertaSaude.formatar(LimitesAlertaSaude.TEMPERATURA_MAX) + "°C)",
+                    "ALTO"));
         }
         return Optional.empty();
     }
 
     private Optional<AlertaInfo> analisarFrequencia(BigDecimal valor) {
-        if (valor.compareTo(FREQ_MIN) < 0) {
-            return Optional.of(new AlertaInfo("Frequência cardíaca abaixo do normal (< 60 bpm)", "ALTO"));
+        if (valor.compareTo(LimitesAlertaSaude.FREQUENCIA_MIN) < 0) {
+            return Optional.of(new AlertaInfo(
+                    "Frequência cardíaca abaixo do normal (< " + LimitesAlertaSaude.formatar(LimitesAlertaSaude.FREQUENCIA_MIN) + " bpm)",
+                    "ALTO"));
         }
-        if (valor.compareTo(FREQ_MAX) > 0) {
-            return Optional.of(new AlertaInfo("Frequência cardíaca acima do normal (> 180 bpm)", "ALTO"));
+        if (valor.compareTo(LimitesAlertaSaude.FREQUENCIA_MAX) > 0) {
+            return Optional.of(new AlertaInfo(
+                    "Frequência cardíaca acima do normal (> " + LimitesAlertaSaude.formatar(LimitesAlertaSaude.FREQUENCIA_MAX) + " bpm)",
+                    "ALTO"));
         }
         return Optional.empty();
     }
 
     private Optional<AlertaInfo> analisarPeso(BigDecimal valor) {
-        if (valor.compareTo(PESO_MIN) < 0) {
-            return Optional.of(new AlertaInfo("Peso abaixo do mínimo de referência (< 0,5 kg)", "MEDIO"));
+        if (valor.compareTo(LimitesAlertaSaude.PESO_MIN) < 0) {
+            return Optional.of(new AlertaInfo(
+                    "Peso abaixo do mínimo de referência (< " + LimitesAlertaSaude.formatar(LimitesAlertaSaude.PESO_MIN) + " kg)",
+                    "MEDIO"));
         }
         return Optional.empty();
     }
@@ -73,22 +77,6 @@ public class LogSaudeAlertaAnalyzer {
         return dto;
     }
 
-    private static class AlertaInfo {
-
-        private final String motivo;
-        private final String nivel;
-
-        AlertaInfo(String motivo, String nivel) {
-            this.motivo = motivo;
-            this.nivel = nivel;
-        }
-
-        String motivo() {
-            return motivo;
-        }
-
-        String nivel() {
-            return nivel;
-        }
+    private record AlertaInfo(String motivo, String nivel) {
     }
 }

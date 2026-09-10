@@ -47,7 +47,10 @@ public class AgendamentoService {
 
     @Transactional(readOnly = true)
     public Page<AgendamentoResponseDTO> listar(Long idPet, Long idClinica, String status, Pageable pageable) {
-        return agendamentoRepository.buscarComFiltros(idPet, idClinica, status, pageable)
+        StatusAgendamento statusEnum = status == null || status.isBlank()
+                ? null
+                : StatusAgendamento.fromValor(status);
+        return agendamentoRepository.buscarComFiltros(idPet, idClinica, statusEnum, pageable)
                 .map(AgendamentoResponseDTO::from);
     }
 
@@ -71,7 +74,7 @@ public class AgendamentoService {
                 .clinica(clinica)
                 .dtAgenda(dto.getDtAgenda())
                 .tipoServico(dto.getTipoServico())
-                .status(dto.getStatus())
+                .status(StatusAgendamento.fromValor(dto.getStatus()))
                 .build();
 
         return AgendamentoResponseDTO.from(agendamentoRepository.save(agendamento));
@@ -79,17 +82,16 @@ public class AgendamentoService {
 
     /**
      * Atualiza somente o status com validação de transições permitidas.
-     * AGENDADO → CONCLUIDO | CANCELADO (conforme CK_STATUS_AGENDAMENTO no Oracle)
+     * AGENDADO → CONCLUIDO | CANCELADO.
      */
     @Transactional
     @CacheEvict(value = {"agendamentos", "petsResumo"}, allEntries = true)
     public AgendamentoResponseDTO atualizarStatus(Long id, AgendamentoStatusDTO dto) {
         Agendamento agendamento = buscarEntidade(id);
-        StatusAgendamento atual = StatusAgendamento.fromValor(agendamento.getStatus());
         StatusAgendamento novo = StatusAgendamento.fromValor(dto.getStatus());
 
-        statusValidator.validarTransicao(atual, novo);
-        agendamento.setStatus(novo.name());
+        statusValidator.validarTransicao(agendamento.getStatus(), novo);
+        agendamento.setStatus(novo);
 
         return AgendamentoResponseDTO.from(agendamentoRepository.save(agendamento));
     }
@@ -107,7 +109,7 @@ public class AgendamentoService {
         agendamento.setClinica(clinica);
         agendamento.setDtAgenda(dto.getDtAgenda());
         agendamento.setTipoServico(dto.getTipoServico());
-        agendamento.setStatus(dto.getStatus());
+        agendamento.setStatus(StatusAgendamento.fromValor(dto.getStatus()));
 
         return AgendamentoResponseDTO.from(agendamentoRepository.save(agendamento));
     }

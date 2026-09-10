@@ -113,8 +113,8 @@ public class PrescricaoService {
     }
 
     private void validarPeriodo(PrescricaoRequestDTO dto) {
-        if (dto.getDtFim() != null && dto.getDtInicio() != null && dto.getDtFim().isBefore(dto.getDtInicio())) {
-            throw new BusinessRuleException("A data de término deve ser igual ou posterior à data de início");
+        if (!PeriodoPrescricao.isValido(dto.getDtInicio(), dto.getDtFim())) {
+            throw new BusinessRuleException(PeriodoPrescricao.MENSAGEM_INVALIDO);
         }
     }
 }

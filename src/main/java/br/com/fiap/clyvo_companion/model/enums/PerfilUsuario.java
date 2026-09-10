@@ -14,14 +14,6 @@ public enum PerfilUsuario {
     }
 
     public static PerfilUsuario fromValor(String valor) {
-        if (valor == null || valor.isBlank()) {
-            throw new IllegalArgumentException("Perfil não informado");
-        }
-        try {
-            return PerfilUsuario.valueOf(valor.trim().toUpperCase());
-        } catch (IllegalArgumentException ex) {
-            throw new IllegalArgumentException(
-                    "Perfil inválido: " + valor + ". Valores aceitos: TUTOR, VETERINARIO");
-        }
+        return ValorEnum.fromValor(PerfilUsuario.class, valor, "Perfil");
     }
 }

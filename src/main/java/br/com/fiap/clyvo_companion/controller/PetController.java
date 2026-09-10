@@ -3,6 +3,7 @@ package br.com.fiap.clyvo_companion.controller;
 import br.com.fiap.clyvo_companion.dto.PetRequestDTO;
 import br.com.fiap.clyvo_companion.dto.PetResumoSaudeDTO;
 import br.com.fiap.clyvo_companion.dto.PetResponseDTO;
+import br.com.fiap.clyvo_companion.service.PetResumoSaudeService;
 import br.com.fiap.clyvo_companion.service.PetService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -21,9 +22,11 @@ import java.net.URI;
 public class PetController {
 
     private final PetService petService;
+    private final PetResumoSaudeService petResumoSaudeService;
 
-    public PetController(PetService petService) {
+    public PetController(PetService petService, PetResumoSaudeService petResumoSaudeService) {
         this.petService = petService;
+        this.petResumoSaudeService = petResumoSaudeService;
     }
 
     @GetMapping
@@ -37,7 +40,7 @@ public class PetController {
 
     @GetMapping("/{id}/resumo-saude")
     public PetResumoSaudeDTO buscarResumoSaude(@PathVariable Long id) {
-        return petService.buscarResumoSaude(id);
+        return petResumoSaudeService.buscar(id);
     }
 
     @GetMapping("/{id}")

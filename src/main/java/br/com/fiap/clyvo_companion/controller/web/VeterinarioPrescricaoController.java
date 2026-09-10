@@ -2,7 +2,6 @@ package br.com.fiap.clyvo_companion.controller.web;
 
 import br.com.fiap.clyvo_companion.dto.AgendamentoResponseDTO;
 import br.com.fiap.clyvo_companion.dto.PrescricaoRequestDTO;
-import br.com.fiap.clyvo_companion.exception.BusinessRuleException;
 import br.com.fiap.clyvo_companion.exception.ResourceNotFoundException;
 import br.com.fiap.clyvo_companion.service.AgendamentoService;
 import br.com.fiap.clyvo_companion.service.PetService;
@@ -50,7 +49,6 @@ public class VeterinarioPrescricaoController {
             Model model) {
         PrescricaoRequestDTO dto = new PrescricaoRequestDTO();
         dto.setDtInicio(LocalDate.now());
-        dto.setFrequenciaHoras(24);
 
         AgendamentoResponseDTO agendamento = carregarAgendamento(idAgendamento);
         if (agendamento != null) {
@@ -72,26 +70,18 @@ public class VeterinarioPrescricaoController {
             @RequestParam(required = false) Long idAgendamento,
             Model model,
             RedirectAttributes redirectAttributes) {
-        if (bindingResult.hasErrors()) {
+        if (WebFormSupport.falhouAoSalvar(bindingResult, () -> prescricaoService.criar(dto))) {
             model.addAttribute("agendamento", carregarAgendamento(idAgendamento));
             preencherFormulario(model);
             return "vet/prescricao-form";
         }
 
-        try {
-            prescricaoService.criar(dto);
-            redirectAttributes.addFlashAttribute("sucesso", "Prescrição emitida com sucesso.");
-            return "redirect:/vet/prescricoes";
-        } catch (BusinessRuleException | ResourceNotFoundException ex) {
-            bindingResult.reject("negocio", ex.getMessage());
-            model.addAttribute("agendamento", carregarAgendamento(idAgendamento));
-            preencherFormulario(model);
-            return "vet/prescricao-form";
-        }
+        redirectAttributes.addFlashAttribute("sucesso", "Prescrição emitida com sucesso.");
+        return "redirect:/vet/prescricoes";
     }
 
     private void preencherFormulario(Model model) {
-        model.addAttribute("pets", petService.listarParaSelecao(null));
+        model.addAttribute("pets", petService.listarTodosParaSelecao());
     }
 
     private AgendamentoResponseDTO carregarAgendamento(Long idAgendamento) {

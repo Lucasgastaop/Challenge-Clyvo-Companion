@@ -86,7 +86,7 @@ public class FlywayOracleExistingSchemaConfig {
                 return null;
             }
         } catch (SQLException e) {
-            throw new IllegalStateException("Falha ao consultar o schema Oracle do Clyvo", e);
+            throw new IllegalStateException("Falha ao consultar o schema Oracle do Clyvo: " + e.getMessage(), e);
         }
     }
 }

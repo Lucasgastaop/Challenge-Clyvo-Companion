@@ -14,12 +14,13 @@ import java.util.List;
 @Repository
 public interface PrescricaoRepository extends JpaRepository<Prescricao, Long> {
 
-    @Query("""
+    String JPQL_ATIVAS = """
             SELECT p FROM Prescricao p
             WHERE p.pet.idPet = :idPet
               AND (p.dtFim IS NULL OR p.dtFim >= :hoje)
-            ORDER BY p.dtInicio DESC
-            """)
+            """;
+
+    @Query(JPQL_ATIVAS + " ORDER BY p.dtInicio DESC")
     List<Prescricao> findAtivasPorPet(@Param("idPet") Long idPet, @Param("hoje") LocalDate hoje);
 
     @Query("""
@@ -29,11 +30,7 @@ public interface PrescricaoRepository extends JpaRepository<Prescricao, Long> {
             """)
     List<Prescricao> findAllComPet();
 
-    @Query("""
-            SELECT p FROM Prescricao p
-            WHERE p.pet.idPet = :idPet
-              AND (p.dtFim IS NULL OR p.dtFim >= :hoje)
-            """)
+    @Query(JPQL_ATIVAS)
     Page<Prescricao> findAtivasPorPet(@Param("idPet") Long idPet, @Param("hoje") LocalDate hoje, Pageable pageable);
 
     @Query("""

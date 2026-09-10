@@ -69,7 +69,7 @@ public class UsuarioService {
 
         usuario.setNomeUsuario(dto.getNomeUsuario());
         usuario.setEmail(dto.getEmail());
-        usuario.setSenha(passwordEncoder.encode(dto.getSenha()));
+        atualizarSenhaSeInformada(usuario, dto.getSenha());
         usuario.setTpPerfil(dto.getTpPerfil());
 
         return UsuarioResponseDTO.from(usuarioRepository.save(usuario));
@@ -87,5 +87,16 @@ public class UsuarioService {
     private Usuario buscarEntidade(Long id) {
         return usuarioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado: " + id));
+    }
+
+    private void atualizarSenhaSeInformada(Usuario usuario, String senha) {
+        if (senha == null || senha.isBlank() || jaCodificada(senha)) {
+            return;
+        }
+        usuario.setSenha(passwordEncoder.encode(senha));
+    }
+
+    private boolean jaCodificada(String senha) {
+        return senha.startsWith("$2a$") || senha.startsWith("$2b$") || senha.startsWith("$2y$");
     }
 }

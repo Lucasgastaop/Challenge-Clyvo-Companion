@@ -82,13 +82,8 @@ public class LogSaudeService {
     @Transactional
     @CacheEvict(value = {"logsSaude", "logsSaudeAlertas", "petsResumo"}, allEntries = true)
     public LogSaudeResponseDTO criar(LogSaudeRequestDTO dto) {
-        Pet pet = buscarPet(dto.getIdPet());
-        usuarioAutenticadoService.getUsuarioLogado()
-                .ifPresent(usuario -> petAcessoPolicy.garantirPetDoTutor(pet, usuario));
-        validarMetrica(dto);
-
         LogSaude log = LogSaude.builder()
-                .pet(pet)
+                .pet(prepararPetValidado(dto))
                 .dtRegistro(dto.getDtRegistro() != null ? dto.getDtRegistro() : LocalDateTime.now())
                 .vlMetrica(dto.getVlMetrica())
                 .metrica(metricaSaudeValidator.normalizar(dto.getMetrica()))
@@ -102,12 +97,7 @@ public class LogSaudeService {
     @CacheEvict(value = {"logsSaude", "logsSaudeAlertas", "petsResumo"}, allEntries = true)
     public LogSaudeResponseDTO atualizar(Long id, LogSaudeRequestDTO dto) {
         LogSaude log = buscarEntidade(id);
-        Pet pet = buscarPet(dto.getIdPet());
-        usuarioAutenticadoService.getUsuarioLogado()
-                .ifPresent(usuario -> petAcessoPolicy.garantirPetDoTutor(pet, usuario));
-        validarMetrica(dto);
-
-        log.setPet(pet);
+        log.setPet(prepararPetValidado(dto));
         log.setDtRegistro(dto.getDtRegistro());
         log.setVlMetrica(dto.getVlMetrica());
         log.setMetrica(metricaSaudeValidator.normalizar(dto.getMetrica()));
@@ -125,6 +115,14 @@ public class LogSaudeService {
         logSaudeRepository.deleteById(id);
     }
 
+    private Pet prepararPetValidado(LogSaudeRequestDTO dto) {
+        Pet pet = buscarPet(dto.getIdPet());
+        usuarioAutenticadoService.getUsuarioLogado()
+                .ifPresent(usuario -> petAcessoPolicy.garantirPetDoTutor(pet, usuario));
+        metricaSaudeValidator.validar(dto.getMetrica(), dto.getVlMetrica());
+        return pet;
+    }
+
     private LogSaude buscarEntidade(Long id) {
         return logSaudeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Log de saúde não encontrado: " + id));
@@ -133,9 +131,5 @@ public class LogSaudeService {
     private Pet buscarPet(Long idPet) {
         return petRepository.findById(idPet)
                 .orElseThrow(() -> new ResourceNotFoundException("Pet não encontrado: " + idPet));
-    }
-
-    private void validarMetrica(LogSaudeRequestDTO dto) {
-        metricaSaudeValidator.validar(dto.getMetrica(), dto.getVlMetrica());
     }
 }

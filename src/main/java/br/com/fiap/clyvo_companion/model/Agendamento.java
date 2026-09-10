@@ -1,5 +1,6 @@
 package br.com.fiap.clyvo_companion.model;
 
+import br.com.fiap.clyvo_companion.model.enums.StatusAgendamento;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,6 +35,7 @@ public class Agendamento {
     @Column(name = "TIPO_SERVICO", nullable = false, length = 50)
     private String tipoServico;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "STATUS", nullable = false, length = 20)
-    private String status;
+    private StatusAgendamento status;
 }

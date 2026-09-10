@@ -45,4 +45,23 @@ class AuthControllerTest {
         mockMvc.perform(get("/auth/me"))
                 .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    void criarUsuarioSemAutenticacaoRetorna201() throws Exception {
+        String email = "novo.usuario." + System.currentTimeMillis() + "@fiap.com.br";
+        mockMvc.perform(post("/usuarios")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"nomeUsuario":"Novo Usuario","email":"%s","senha":"senha123","tpPerfil":"TUTOR"}
+                                """.formatted(email)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.email").value(email))
+                .andExpect(jsonPath("$.tpPerfil").value("TUTOR"));
+    }
+
+    @Test
+    void listarUsuariosSemAutenticacaoRetorna401() throws Exception {
+        mockMvc.perform(get("/usuarios"))
+                .andExpect(status().isUnauthorized());
+    }
 }

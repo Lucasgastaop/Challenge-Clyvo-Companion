@@ -32,7 +32,7 @@ public class AgendamentoResponseDTO {
         dto.setNomeClinica(agendamento.getClinica().getNomeClinica());
         dto.setDtAgenda(agendamento.getDtAgenda());
         dto.setTipoServico(agendamento.getTipoServico());
-        dto.setStatus(agendamento.getStatus());
+        dto.setStatus(agendamento.getStatus() == null ? null : agendamento.getStatus().name());
         return dto;
     }
 }

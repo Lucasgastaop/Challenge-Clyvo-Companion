@@ -27,10 +27,15 @@ public interface LogSaudeRepository extends JpaRepository<LogSaude, Long> {
             SELECT l FROM LogSaude l
             WHERE (:idPet IS NULL OR l.pet.idPet = :idPet)
               AND (
-                LOWER(l.metrica) = 'temperatura' AND (l.vlMetrica < 37 OR l.vlMetrica > 39)
-                OR LOWER(l.metrica) IN ('frequencia cardiaca', 'frequencia_cardiaca')
-                    AND (l.vlMetrica < 60 OR l.vlMetrica > 180)
-                OR LOWER(l.metrica) = 'peso' AND l.vlMetrica < 0.5
+                LOWER(l.metrica) = 'temperatura' AND (
+                    l.vlMetrica < :#{@limitesAlertaSaude.temperaturaMin}
+                    OR l.vlMetrica > :#{@limitesAlertaSaude.temperaturaMax}
+                )
+                OR LOWER(l.metrica) IN ('frequencia cardiaca', 'frequencia_cardiaca') AND (
+                    l.vlMetrica < :#{@limitesAlertaSaude.frequenciaMin}
+                    OR l.vlMetrica > :#{@limitesAlertaSaude.frequenciaMax}
+                )
+                OR LOWER(l.metrica) = 'peso' AND l.vlMetrica < :#{@limitesAlertaSaude.pesoMin}
               )
             """)
     Page<LogSaude> buscarAlertas(@Param("idPet") Long idPet, Pageable pageable);
