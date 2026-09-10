@@ -120,6 +120,7 @@ Validações dos fluxos: Bean Validation nos DTOs + regras de limite de métrica
 
 | Recurso | Endpoint base |
 |---------|----------------|
+| Autenticação | `/auth` |
 | Usuários | `/usuarios` |
 | Pets | `/pets` |
 | Clínicas | `/clinicas` |
@@ -136,6 +137,9 @@ Operações disponíveis: `GET` (listagem paginada e por ID), `POST`, `PUT` e `D
 
 | Método | Endpoint | Descrição |
 |--------|----------|-----------|
+| POST | `/auth/login` | Autentica com e-mail e senha e abre a sessão |
+| GET | `/auth/me` | Retorna o usuário autenticado |
+| POST | `/auth/logout` | Encerra a sessão |
 | GET | `/pets/{id}/resumo-saude` | Consolida prescrições ativas, últimos logs e próximo agendamento |
 | GET | `/prescricoes/ativas?idPet={id}` | Lista prescrições em vigor |
 | PATCH | `/agendamentos/{id}/status` | Atualiza status (`AGENDADO` → `CONCLUIDO` ou `CANCELADO`) |
