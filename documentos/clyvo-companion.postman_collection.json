@@ -1,18 +1,20 @@
 {
   "info": {
     "name": "Clyvo Companion API",
-    "description": "Coleção FIAP Java Advanced — 18 requisições numeradas. Rode a pasta \"00 - Fluxo Entrega\" no Collection Runner. HTTP Basic: tutor (maria) por padrão; prescrição usa o veterinário (carlos).",
+    "description": "Coleção FIAP Java Advanced. Rode a pasta \"00 - Fluxo Entrega\" no Collection Runner. O primeiro passo faz login e guarda o access token (Bearer). Prescrição faz login do veterinário (carlos).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
-    "type": "basic",
-    "basic": [
-      { "key": "username", "value": "maria@email.com" },
-      { "key": "password", "value": "senha123" }
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{accessToken}}", "type": "string" }
     ]
   },
   "variable": [
     { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" },
+    { "key": "accessTokenVet", "value": "" },
     { "key": "idUsuario", "value": "1" },
     { "key": "idPet", "value": "1" },
     { "key": "idClinica", "value": "1" },
@@ -22,8 +24,32 @@
   "item": [
     {
       "name": "00 - Fluxo Entrega (executar em ordem)",
-      "description": "Rode esta pasta com Collection Runner. E-mails e CNPJ usam timestamp para evitar conflito no Oracle. IDs são atualizados automaticamente após cada POST. Tutor autentica a coleção; as prescrições autenticam o veterinário.",
+      "description": "Rode esta pasta com Collection Runner. O login do tutor grava o Bearer; o login do veterinário vale só para as prescrições. E-mails e CNPJ usam timestamp para evitar conflito no Oracle.",
       "item": [
+        {
+          "name": "00 - Login tutor",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"maria@email.com\",\n  \"senha\": \"senha123\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                "const body = pm.response.json();",
+                "pm.collectionVariables.set('accessToken', body.accessToken);",
+                "pm.collectionVariables.set('refreshToken', body.refreshToken);"
+              ]
+            }
+          }]
+        },
         {
           "name": "01 - Listar usuarios",
           "request": { "method": "GET", "url": "{{baseUrl}}/usuarios?page=0&size=5" },
@@ -131,12 +157,33 @@
           "event": [{ "listen": "test", "script": { "exec": ["pm.test('HTTP 200', () => pm.response.to.have.status(200));"] } }]
         },
         {
+          "name": "08b - Login veterinario",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"carlos.vet@clyvo.com\",\n  \"senha\": \"senha123\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                "pm.collectionVariables.set('accessTokenVet', pm.response.json().accessToken);"
+              ]
+            }
+          }]
+        },
+        {
           "name": "09 - Criar prescricao",
           "auth": {
-            "type": "basic",
-            "basic": [
-              { "key": "username", "value": "carlos.vet@clyvo.com" },
-              { "key": "password", "value": "senha123" }
+            "type": "bearer",
+            "bearer": [
+              { "key": "token", "value": "{{accessTokenVet}}", "type": "string" }
             ]
           },
           "request": {
@@ -153,10 +200,9 @@
         {
           "name": "10 - Listar prescricoes ativas",
           "auth": {
-            "type": "basic",
-            "basic": [
-              { "key": "username", "value": "carlos.vet@clyvo.com" },
-              { "key": "password", "value": "senha123" }
+            "type": "bearer",
+            "bearer": [
+              { "key": "token", "value": "{{accessTokenVet}}", "type": "string" }
             ]
           },
           "request": { "method": "GET", "url": "{{baseUrl}}/prescricoes/ativas?idPet={{idPet}}&page=0&size=10" },
@@ -249,11 +295,12 @@
       ]
     },
     {
-      "name": "Auth (sessao JSON)",
+      "name": "Auth (JWT)",
       "item": [
         {
           "name": "POST /auth/login",
           "request": {
+            "auth": { "type": "noauth" },
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
@@ -261,11 +308,46 @@
               "raw": "{\n  \"email\": \"maria@email.com\",\n  \"senha\": \"senha123\"\n}"
             },
             "url": "{{baseUrl}}/auth/login"
-          }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const body = pm.response.json();",
+                "pm.collectionVariables.set('accessToken', body.accessToken);",
+                "pm.collectionVariables.set('refreshToken', body.refreshToken);"
+              ]
+            }
+          }]
         },
         {
           "name": "GET /auth/me",
           "request": { "method": "GET", "url": "{{baseUrl}}/auth/me" }
+        },
+        {
+          "name": "POST /auth/refresh",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/refresh"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "if (pm.response.code === 200) {",
+                "  const body = pm.response.json();",
+                "  pm.collectionVariables.set('accessToken', body.accessToken);",
+                "  pm.collectionVariables.set('refreshToken', body.refreshToken);",
+                "}"
+              ]
+            }
+          }]
         },
         {
           "name": "POST /auth/logout",

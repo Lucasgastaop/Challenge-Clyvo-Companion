@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -29,7 +30,11 @@ class AuthControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("maria@email.com"))
                 .andExpect(jsonPath("$.tpPerfil").value("TUTOR"))
-                .andExpect(jsonPath("$.nomeUsuario").value("Maria Silva"));
+                .andExpect(jsonPath("$.nomeUsuario").value("Maria Silva"))
+                .andExpect(jsonPath("$.tokenType").value("Bearer"))
+                .andExpect(jsonPath("$.expiresIn").value(1800))
+                .andExpect(jsonPath("$.accessToken").isNotEmpty())
+                .andExpect(jsonPath("$.refreshToken").isNotEmpty());
     }
 
     @Test
@@ -44,6 +49,89 @@ class AuthControllerTest {
     void meSemSessaoRetorna401() throws Exception {
         mockMvc.perform(get("/auth/me"))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void mePetsELogsAceitamBearerERecusamBasic() throws Exception {
+        Tokens tokens = login("maria@email.com", "senha123");
+
+        mockMvc.perform(get("/auth/me").header("Authorization", "Bearer " + tokens.accessToken()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("maria@email.com"))
+                .andExpect(jsonPath("$.accessToken").doesNotExist());
+
+        mockMvc.perform(get("/pets").header("Authorization", "Bearer " + tokens.accessToken()))
+                .andExpect(status().isOk());
+        mockMvc.perform(get("/logs-saude").header("Authorization", "Bearer " + tokens.accessToken()))
+                .andExpect(status().isOk());
+        mockMvc.perform(get("/logs-sistema").header("Authorization", "Bearer " + tokens.accessToken()))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/auth/me").with(httpBasic("maria@email.com", "senha123")))
+                .andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/pets").with(httpBasic("maria@email.com", "senha123")))
+                .andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/logs-saude").with(httpBasic("maria@email.com", "senha123")))
+                .andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/logs-sistema").with(httpBasic("maria@email.com", "senha123")))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void refreshRenovaAccessToken() throws Exception {
+        Tokens tokens = login("maria@email.com", "senha123");
+
+        mockMvc.perform(post("/auth/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"refreshToken\":\"" + tokens.refreshToken() + "\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.tokenType").value("Bearer"))
+                .andExpect(jsonPath("$.expiresIn").value(1800))
+                .andExpect(jsonPath("$.email").value("maria@email.com"))
+                .andExpect(jsonPath("$.accessToken").isNotEmpty())
+                .andExpect(jsonPath("$.refreshToken").isNotEmpty());
+    }
+
+    @Test
+    void refreshComAccessTokenRetorna401() throws Exception {
+        Tokens tokens = login("maria@email.com", "senha123");
+
+        mockMvc.perform(post("/auth/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"refreshToken\":\"" + tokens.accessToken() + "\"}"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void refreshTokenNaoAutenticaRotasProtegidas() throws Exception {
+        Tokens tokens = login("maria@email.com", "senha123");
+
+        mockMvc.perform(get("/pets").header("Authorization", "Bearer " + tokens.refreshToken()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    private Tokens login(String email, String senha) throws Exception {
+        String body = mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"" + email + "\",\"senha\":\"" + senha + "\"}"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        return new Tokens(campo(body, "accessToken"), campo(body, "refreshToken"));
+    }
+
+    private static String campo(String json, String nome) {
+        String chave = "\"" + nome + "\":\"";
+        int inicio = json.indexOf(chave);
+        if (inicio < 0) {
+            throw new AssertionError("Campo ausente: " + nome);
+        }
+        int de = inicio + chave.length();
+        return json.substring(de, json.indexOf('"', de));
+    }
+
+    private record Tokens(String accessToken, String refreshToken) {
     }
 
     @Test

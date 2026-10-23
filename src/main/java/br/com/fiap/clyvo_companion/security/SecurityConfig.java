@@ -13,7 +13,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -28,6 +30,7 @@ public class SecurityConfig {
     private static final String[] PUBLICOS = {
             "/login",
             "/auth/login",
+            "/auth/refresh",
             "/css/**",
             "/images/**",
             "/js/**",
@@ -65,7 +68,10 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            JwtService jwtService,
+            UserDetailsService userDetailsService) throws Exception {
         http
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
@@ -103,7 +109,9 @@ public class SecurityConfig {
                                             "{\"status\":401,\"error\":\"Unauthorized\",\"message\":\"Não autenticado\"}");
                                 },
                                 matcherApi()))
-                .httpBasic(Customizer.withDefaults())
+                .addFilterBefore(
+                        new JwtAuthenticationFilter(jwtService, userDetailsService),
+                        UsernamePasswordAuthenticationFilter.class)
                 .csrf(csrf -> csrf.ignoringRequestMatchers(csrfIgnorados()))
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
 

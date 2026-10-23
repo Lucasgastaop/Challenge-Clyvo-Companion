@@ -44,7 +44,7 @@ Cronograma de atividades: [`documentos/CRONOGRAMA.md`](documentos/CRONOGRAMA.md)
 
 - Java 17 e Spring Boot 4
 - Spring Data JPA + Flyway
-- Spring Security (form login + HTTP Basic)
+- Spring Security (form login na web e JWT Bearer na API)
 - Thymeleaf + HTML5/CSS3
 - Bean Validation
 - SpringDoc OpenAPI (Swagger)
@@ -114,7 +114,7 @@ Health check: `/login`. Se o Oracle da FIAP estiver inacessível a partir do Ren
 | Swagger UI | http://localhost:8080/swagger-ui.html |
 | H2 Console (perfil `dev`) | http://localhost:8080/h2-console |
 
-A API REST continua disponível e exige autenticação (sessão após o login ou HTTP Basic com o mesmo e-mail/senha).
+A API REST exige o access token no header `Authorization: Bearer`. O login da interface web continua por formulário e sessão.
 
 ## Camada web (3ª Sprint)
 
@@ -150,9 +150,10 @@ Operações disponíveis: `GET` (listagem paginada e por ID), `POST`, `PUT` e `D
 
 | Método | Endpoint | Descrição |
 |--------|----------|-----------|
-| POST | `/auth/login` | Autentica com e-mail e senha e abre a sessão |
-| GET | `/auth/me` | Retorna o usuário autenticado |
-| POST | `/auth/logout` | Encerra a sessão |
+| POST | `/auth/login` | Autentica com e-mail e senha e devolve access token (30 min) e refresh token (7 dias) |
+| POST | `/auth/refresh` | Troca um refresh token válido por um novo par de tokens |
+| GET | `/auth/me` | Retorna o usuário do access token (`Authorization: Bearer`) |
+| POST | `/auth/logout` | Encerra a sessão web. O cliente da API descarta os tokens |
 | GET | `/pets/{id}/resumo-saude` | Consolida prescrições ativas, últimos logs e próximo agendamento |
 | GET | `/prescricoes/ativas?idPet={id}` | Lista prescrições em vigor |
 | PATCH | `/agendamentos/{id}/status` | Atualiza status (`AGENDADO` → `CONCLUIDO` ou `CANCELADO`) |

@@ -1,7 +1,9 @@
 package br.com.fiap.clyvo_companion.controller;
 
+import br.com.fiap.clyvo_companion.dto.AuthTokenResponseDTO;
 import br.com.fiap.clyvo_companion.dto.LoginRequestDTO;
 import br.com.fiap.clyvo_companion.dto.LoginResponseDTO;
+import br.com.fiap.clyvo_companion.dto.RefreshTokenRequestDTO;
 import br.com.fiap.clyvo_companion.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,11 +27,16 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public LoginResponseDTO login(
+    public AuthTokenResponseDTO login(
             @Valid @RequestBody LoginRequestDTO dto,
             HttpServletRequest request,
             HttpServletResponse response) {
         return authService.login(dto, request, response);
+    }
+
+    @PostMapping("/refresh")
+    public AuthTokenResponseDTO refresh(@Valid @RequestBody RefreshTokenRequestDTO dto) {
+        return authService.refresh(dto.getRefreshToken());
     }
 
     @GetMapping("/me")
